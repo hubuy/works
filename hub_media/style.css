@@ -1,11 +1,11 @@
 /*
-Theme Name: Fuck I Wish I Knew That
+
 Author: Some Studio
 Author URI: https://some.studio/
 Version: 1.0
-Text Domain: fiwikt
+
 */
-/* html5reset.css - 01/11/2011 */
+
 html, body, div, span, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 abbr, address, cite, code,
@@ -132,7 +132,7 @@ body {
   font-family: 'hkgrotesk', sans-serif;
   font-size: 17px;
   line-height: 28px;
-  font-weight: 200;
+  font-weight: 250;
   color: #515456; }
 
 a {
@@ -146,7 +146,11 @@ h2 {
   line-height: 36px; }
 
 h4 {
-  font-weight: normal; }
+  font-weight: 250; }
+
+
+
+
 
 #wrapper {
   z-index: 2; }
@@ -171,6 +175,7 @@ h4 {
       background-color: white; }
     #wrapper.night section.links ul li a .title:before {
       background-color: black; }
+
     #wrapper.night section.links ul li a .date:before {
       background: -webkit-gradient(linear, left top, right top, from(transparent), color-stop(50%, black), to(black));
       background: linear-gradient(90deg, transparent 0%, black 50%, black 100%); }
@@ -206,7 +211,7 @@ h4 {
     width: 50px;
     height: 50px;
     color: white;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 18px;
     text-align: center;
     position: fixed;
@@ -223,8 +228,8 @@ h4 {
       text-align: justify;
       letter-spacing: 0.2em;
       position: absolute;
-      top: 6px;
-      left: 9px;
+      top: 8px;
+      left: 7px;
       z-index: 5;
       -webkit-transform: scale(0.88);
               transform: scale(0.88);
@@ -526,9 +531,9 @@ h4 {
         #wrapper section.links ul .seperator {
           width: 100%;
           display: block;
-          float: left;
-          margin-top: 50px;
-          margin-bottom: 20px; }
+          float: right;
+          margin-top: 40px;
+          margin-bottom: 40px; }
           #wrapper section.links ul .seperator .year {
             display: inline-block;
             float: left;
@@ -630,6 +635,12 @@ h4 {
                 background-color: white;
                 left: 0;
                 z-index: 2; }
+
+
+
+
+
+
             #wrapper section.links ul li a .date {
               position: absolute;
               top: 0;
