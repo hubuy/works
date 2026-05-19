@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PVE — Value Rules Prototype</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    background: #f0f2f5;
+    color: #1c1e21;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ===== Ads Manager shell ===== */
+  .am-shell {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 56px 280px 1fr 320px;
+    grid-template-rows: 56px 1fr;
+    background: #f0f2f5;
+    z-index: 0;
+  }
+
+  /* Top bar */
+  .am-topbar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    background: #fff;
+    border-bottom: 1px solid #dadde1;
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 0;
+    z-index: 2;
+  }
+  .am-topbar-left {
+    flex: 0 0 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #dadde1;
+  }
+  .am-meta-logo {
+    width: 28px; height: 28px;
+    background: radial-gradient(circle at 30% 30%, #0866ff, #1877f2 40%, #8a3ffc 90%);
+    border-radius: 50%;
+    opacity: 0.95;
+  }
+  .am-topbar-x {
+    width: 32px; height: 32px;
+    margin-left: 12px;
+    color: #65676b;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    cursor: default;
+  }
+  .am-topbar-spacer { flex: 1; }
+  .am-topbar-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: #65676b; margin-right: 12px;
+  }
+  .am-topbar-status::before {
+    content:''; width: 8px; height: 8px; border-radius: 50%; background: #22c55e;
+  }
+  .am-toggle {
+    width: 36px; height: 20px; border-radius: 999px; background: #1877f2; margin-right: 12px;
+    position: relative;
+  }
+  .am-toggle::after {
+    content:''; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px;
+    border-radius: 50%; background: #fff;
+  }
+  .am-topbar-menu { color: #65676b; font-size: 18px; padding: 4px 8px; }
+
+  /* Left icon rail */
+  .am-rail {
+    grid-column: 1;
+    grid-row: 2;
+    background: #fff;
+    border-right: 1px solid #dadde1;
+    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .am-rail-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #65676b;
+    font-size: 16px;
+    cursor: default;
+  }
+  .am-rail-icon.active { background: #e7f3ff; color: #1877f2; }
+  .am-rail-spacer { flex: 1; }
+
+  /* Campaign tree panel */
+  .am-tree {
+    grid-column: 2;
+    grid-row: 2;
+    background: #f7f8fa;
+    border-right: 1px solid #dadde1;
+    padding: 16px 12px;
+    overflow-y: auto;
+  }
+  .am-tree-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #050505;
+    cursor: default;
+    margin-bottom: 2px;
+  }
+  .am-tree-item .am-tree-icon { font-size: 13px; }
+  .am-tree-item.level-1 { padding-left: 10px; }
+  .am-tree-item.level-2 { padding-left: 26px; font-weight: 500; background: #e7f3ff; color: #1877f2; }
+  .am-tree-item.level-3 { padding-left: 42px; background: #fff9e6; }
+  .am-tree-item .more { margin-left: auto; color: #8a8d91; }
+
+  /* Main content area (form skeleton) */
+  .am-main {
+    grid-column: 3;
+    grid-row: 2;
+    background: #fff;
+    overflow-y: auto;
+    padding: 0;
+  }
+  .am-breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 24px;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 13px; color: #65676b;
+  }
+  .am-breadcrumb .crumb { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; }
+  .am-breadcrumb .crumb.active { background: #e7f3ff; color: #1877f2; font-weight: 600; }
+  .am-breadcrumb .sep { color: #ccd0d5; }
+  .am-tabs {
+    display: flex; gap: 8px; padding: 8px 24px 0;
+    border-bottom: 1px solid #f0f2f5;
+  }
+  .am-tab {
+    padding: 8px 14px; font-size: 13px; color: #65676b; cursor: default;
+    border-bottom: 2px solid transparent;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .am-tab.active { color: #1877f2; border-bottom-color: #1877f2; font-weight: 600; }
+
+  .am-form { padding: 20px 24px; }
+  .am-section {
+    background: #fff;
+    border: 1px solid #dadde1;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    opacity: 0.55;
+  }
+  .am-section.active { opacity: 1; background: #fafbff; border-color: #c8d6ea; }
+  .am-section h4 {
+    font-size: 14px; font-weight: 600; color: #050505;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .am-section h4 .check { color: #65676b; font-size: 14px; }
+  .am-section .skel { height: 8px; background: #e4e6eb; border-radius: 4px; margin: 8px 0; }
+  .am-section .skel.short { width: 40%; }
+  .am-section .skel.medium { width: 65%; }
+
+  /* Right panel (insights cards) */
+  .am-right {
+    grid-column: 4;
+    grid-row: 2;
+    background: #f7f8fa;
+    border-left: 1px solid #dadde1;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  .am-insight-card {
+    background: #fff;
+    border: 1px solid #dadde1;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .am-insight-card h5 {
+    font-size: 13px; font-weight: 600; color: #050505;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .am-insight-bar {
+    height: 8px; border-radius: 4px;
+    background: linear-gradient(90deg, #fcb6b6 0%, #b5e6b5 35%, #b5e6b5 75%, #fce6a3 100%);
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .am-insight-bar::after {
+    content:''; position: absolute; top: -2px; left: 45%; width: 2px; height: 12px; background: #050505;
+  }
+  .am-insight-row {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #65676b; margin-bottom: 10px;
+  }
+  .am-insight-detail {
+    font-size: 12px; color: #65676b; line-height: 1.45;
+  }
+  .am-insight-stat {
+    font-size: 20px; font-weight: 600; color: #050505; margin: 4px 0 8px;
+  }
+
+  /* Bottom action bar in the main area */
+  .am-bottom-bar {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    border-top: 1px solid #dadde1;
+    padding: 12px 24px;
+    display: flex; justify-content: space-between;
+    margin-top: 20px;
+  }
+  .am-bottom-btn {
+    padding: 7px 16px; border-radius: 4px; font-size: 13px;
+    border: 1px solid #ccd0d5; background: #fff; color: #050505;
+  }
+
+  /* ===== Modal dim + modal ===== */
+  .modal-dim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1;
+  }
+  .modal-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    pointer-events: none;
+  }
+
+  /* Modal */
+  .modal {
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+    width: 560px;
+    max-width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #dadde1;
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #050505;
+  }
+  .modal-desc {
+    font-size: 13px;
+    color: #65676b;
+    line-height: 1.45;
+  }
+  .modal-desc a {
+    color: #1877f2;
+    text-decoration: none;
+  }
+  .modal-desc a:hover { text-decoration: underline; }
+  .modal-body {
+    padding: 16px 24px 20px;
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+
+  /* Rule card */
+  .rule-card {
+    border: 1px solid #dadde1;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .rule-header {
+    background: #e7f0fd;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #050505;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .rule-header .rule-name-display {
+    color: #65676b;
+    font-weight: 400;
+    margin-left: 6px;
+  }
+  .rule-body {
+    padding: 14px 14px 10px;
+    background: #fff;
+  }
+  .rule-body .field-label {
+    font-size: 13px;
+    color: #050505;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .criteria-block {
+    background: #f0f2f5;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  /* Inputs */
+  .input,
+  .select {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid #ccd0d5;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    color: #050505;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .input:focus,
+  .select:focus,
+  .input:hover,
+  .select:hover {
+    border-color: #1877f2;
+    outline: none;
+  }
+  .input::placeholder { color: #8a8d91; }
+  .select .placeholder { color: #8a8d91; }
+  .select .caret {
+    color: #65676b;
+    flex-shrink: 0;
+  }
+  .select .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e7f3ff;
+    color: #1877f2;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .chip .x {
+    cursor: pointer;
+    opacity: 0.65;
+    padding: 0 2px;
+  }
+  .chip .x:hover { opacity: 1; }
+
+  .input-row {
+    display: flex;
+    gap: 0;
+  }
+  .input-row .input,
+  .input-row .select {
+    border-radius: 0;
+    border-right-width: 0;
+  }
+  .input-row > *:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
+  .input-row > *:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-right-width: 1px;
+  }
+  .input-suffix {
+    flex: 0 0 64px;
+    text-align: right;
+    color: #65676b;
+    padding-right: 12px;
+    justify-content: flex-end;
+    cursor: text;
+  }
+  .input-suffix input {
+    width: 40px;
+    border: none;
+    outline: none;
+    text-align: right;
+    font-size: 14px;
+    background: transparent;
+    color: #050505;
+    font-family: inherit;
+  }
+
+  .name-input-wrap {
+    position: relative;
+  }
+  .name-input {
+    padding-right: 56px;
+  }
+  .char-count {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #8a8d91;
+    pointer-events: none;
+  }
+
+  .btn-secondary {
+    background: #fff;
+    border: 1px solid #ccd0d5;
+    color: #050505;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: #f0f2f5; }
+  .btn-primary {
+    background: #1877f2;
+    border: none;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #166fe5; }
+  .btn-text {
+    background: none;
+    border: none;
+    color: #1877f2;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-text:hover { text-decoration: underline; }
+  .btn-link-muted {
+    background: none;
+    border: none;
+    color: #65676b;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+  }
+  .btn-link-muted:hover { color: #1877f2; }
+
+  .rule-footer {
+    padding: 8px 14px 12px;
+    border-top: 1px solid #f0f2f5;
+    background: #fff;
+  }
+
+  .modal-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-top: 1px solid #dadde1;
+    background: #f7f8fa;
+  }
+  .modal-footer-row .actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Rule type tabs */
+  .rule-type-tabs {
+    display: inline-flex;
+    background: #f0f2f5;
+    border-radius: 6px;
+    padding: 3px;
+    margin-bottom: 12px;
+  }
+  .rule-type-tab {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #65676b;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .rule-type-tab:hover {
+    color: #050505;
+  }
+  .rule-type-tab.active {
+    background: #fff;
+    color: #1877f2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* Summary view */
+  .summary-intro {
+    font-size: 13px;
+    color: #65676b;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .summary-card {
+    border: 1px solid #dadde1;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .summary-card-header {
+    background: #f7f8fa;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #dadde1;
+  }
+  .summary-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #050505;
+  }
+  .summary-card-title .untitled { color: #8a8d91; font-weight: 400; font-style: italic; }
+  .summary-type-badge {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1877f2;
+    font-weight: 700;
+  }
+  .summary-card-body {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #050505;
+    line-height: 1.55;
+  }
+  .summary-card-body .empty {
+    color: #f59e0b;
+    font-style: italic;
+    font-size: 13px;
+  }
+  .summary-sentence {
+    margin-bottom: 0;
+  }
+  .summary-sentence .pill {
+    display: inline-block;
+    background: #e7f3ff;
+    color: #1877f2;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0 2px;
+    line-height: 1.6;
+  }
+  .summary-sentence .pill.bid-up {
+    background: rgba(34,197,94,0.12);
+    color: #16a34a;
+  }
+  .summary-sentence .pill.bid-down {
+    background: rgba(239,68,68,0.12);
+    color: #dc2626;
+  }
+  .summary-sentence .pill.muted {
+    background: #f0f2f5;
+    color: #65676b;
+  }
+
+  .summary-impact-box {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #e7f3ff 0%, #f0e7ff 100%);
+    border-radius: 6px;
+    font-size: 13px;
+    color: #050505;
+    line-height: 1.5;
+    border: 1px solid #d0d7e2;
+  }
+  .summary-impact-box strong { color: #1877f2; }
+
+  /* Success state */
+  .success-state {
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: #e7f9ec;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+  .success-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #050505;
+    margin-bottom: 8px;
+  }
+  .success-sub {
+    font-size: 14px;
+    color: #65676b;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .success-toast-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0f2f5;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #050505;
+  }
+
+  /* Dropdown menu */
+  .dropdown-menu {
+    position: fixed;
+    background: #fff;
+    border: 1px solid #dadde1;
+    border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    z-index: 1000;
+    max-height: 280px;
+    overflow-y: auto;
+    display: none;
+  }
+  .dropdown-menu.open { display: block; }
+  .dropdown-section {
+    padding: 6px 0;
+  }
+  .dropdown-section + .dropdown-section {
+    border-top: 1px solid #f0f2f5;
+  }
+  .dropdown-section-label {
+    padding: 6px 14px 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8a8d91;
+    font-weight: 600;
+  }
+  .dropdown-item {
+    padding: 9px 14px;
+    font-size: 14px;
+    color: #050505;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .dropdown-item:hover { background: #f0f2f5; }
+  .dropdown-item.selected {
+    background: #e7f3ff;
+  }
+  .dropdown-item .check {
+    color: #1877f2;
+    font-weight: 700;
+    opacity: 0;
+  }
+  .dropdown-item.selected .check { opacity: 1; }
+  .dropdown-item-sub {
+    font-size: 12px;
+    color: #65676b;
+    margin-top: 2px;
+  }
+  .dropdown-item .item-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* "How multiple rules work" panel */
+  .multi-info {
+    margin-top: 14px;
+    padding: 14px;
+    background: #f7f8fa;
+    border-radius: 6px;
+    border: 1px solid #dadde1;
+    font-size: 13px;
+    color: #65676b;
+    line-height: 1.5;
+    display: none;
+  }
+  .multi-info.open { display: block; }
+  .multi-info strong { color: #050505; }
+
+  /* Helper "demo guide" toast — explains what to try */
+  .demo-guide {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 100;
+    background: #050505;
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.45;
+    max-width: 280px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  }
+  .demo-guide strong { color: #4ea8ff; }
+  .demo-guide .dismiss {
+    display: inline-block;
+    margin-top: 8px;
+    color: #8a8d91;
+    cursor: pointer;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .demo-guide .dismiss:hover { color: #fff; }
+  .demo-guide.hidden { display: none; }
+
+  /* Bid adjustment toggle */
+  .bid-direction {
+    background: transparent;
+    border: none;
+    color: #050505;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    padding-left: 12px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+  .bid-direction .caret { color: #65676b; margin-left: 6px; }
+
+  @media (max-width: 600px) {
+    .am-shell { grid-template-columns: 56px 220px 1fr 0; }
+    .am-right { display: none; }
+    body { padding: 0; align-items: flex-start; }
+    .modal { width: 100%; border-radius: 0; height: 100vh; max-height: 100vh; display: flex; flex-direction: column; }
+    .modal-body { flex: 1; max-height: none; }
+    .demo-guide { max-width: calc(100% - 32px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Ads Manager shell behind the modal ===== -->
+<div class="am-shell">
+  <!-- Top bar -->
+  <div class="am-topbar">
+    <div class="am-topbar-left"><div class="am-meta-logo"></div></div>
+    <div class="am-topbar-x">×</div>
+    <div class="am-topbar-spacer"></div>
+    <div class="am-topbar-status">Active</div>
+    <div class="am-toggle"></div>
+    <div class="am-topbar-menu">⋯</div>
+  </div>
+
+  <!-- Left icon rail -->
+  <div class="am-rail">
+    <div class="am-rail-icon">☰</div>
+    <div class="am-rail-icon">📊</div>
+    <div class="am-rail-icon active">✎</div>
+    <div class="am-rail-icon">⧁</div>
+    <div class="am-rail-icon">▤</div>
+    <div class="am-rail-icon">📄</div>
+    <div class="am-rail-icon">👥</div>
+    <div class="am-rail-icon">📖</div>
+    <div class="am-rail-icon">☰</div>
+    <div class="am-rail-spacer"></div>
+    <div class="am-rail-icon">⚙</div>
+    <div class="am-rail-icon">🔔</div>
+    <div class="am-rail-icon">🔍</div>
+  </div>
+
+  <!-- Campaign tree -->
+  <div class="am-tree">
+    <div class="am-tree-item level-1"><span class="am-tree-icon">📁</span>Holiday Sale Campaign<span class="more">⋯</span></div>
+    <div class="am-tree-item level-2"><span class="am-tree-icon">▤</span>Holiday ad set<span class="more">⋯</span></div>
+    <div class="am-tree-item level-3"><span class="am-tree-icon">📄</span>Holiday ad<span class="more">⋯</span></div>
+  </div>
+
+  <!-- Main content -->
+  <div class="am-main">
+    <div class="am-breadcrumb">
+      <span class="crumb">📁 Holiday Sale Campaign</span>
+      <span class="sep">›</span>
+      <span class="crumb active">▤ Holiday ad set</span>
+      <span class="sep">›</span>
+      <span class="crumb">1 Ad</span>
+    </div>
+    <div class="am-tabs">
+      <div class="am-tab active">✎ Edit</div>
+      <div class="am-tab">👁 Review</div>
+    </div>
+    <div class="am-form">
+      <div class="am-section">
+        <h4><span class="check">◎</span> Ad Set name</h4>
+        <div class="skel medium"></div>
+        <div class="skel short"></div>
+      </div>
+      <div class="am-section">
+        <h4><span class="check">◎</span> Performance goal</h4>
+        <div class="skel medium"></div>
+      </div>
+      <div class="am-section active">
+        <h4><span class="check" style="color:#1877f2;">◉</span> Value rules</h4>
+        <div class="skel medium"></div>
+        <div class="skel short"></div>
+      </div>
+      <div class="am-section">
+        <h4><span class="check">◎</span> Budget &amp; schedule</h4>
+        <div class="skel medium"></div>
+        <div class="skel short"></div>
+      </div>
+      <div class="am-section">
+        <h4><span class="check">◎</span> Audience</h4>
+        <div class="skel medium"></div>
+      </div>
+      <div class="am-section">
+        <h4><span class="check">◎</span> Placements</h4>
+        <div class="skel medium"></div>
+      </div>
+      <div class="am-bottom-bar">
+        <button class="am-bottom-btn">Close</button>
+        <div style="display:flex; gap:8px;">
+          <button class="am-bottom-btn">Back</button>
+          <button class="am-bottom-btn" style="background:#1877f2; color:#fff; border-color:#1877f2;">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right insights panel -->
+  <div class="am-right">
+    <div class="am-insight-card">
+      <h5>Audience Definition ⓘ</h5>
+      <div class="am-insight-detail" style="margin-bottom:10px;">Your audience selection is fairly broad.</div>
+      <div class="am-insight-bar"></div>
+      <div class="am-insight-row"><span>Specific</span><span>Broad</span></div>
+      <div class="am-insight-detail">Estimated audience size: <strong style="color:#050505;">232,700 – 273,700</strong></div>
+    </div>
+    <div class="am-insight-card">
+      <h5>Estimated Daily Results</h5>
+      <div class="am-insight-detail">Reach ⓘ</div>
+      <div class="am-insight-stat">5.3K – 15K</div>
+      <div class="am-insight-bar" style="background:linear-gradient(90deg,#cfe1ff 0%,#1877f2 30%,#1877f2 60%,#cfe1ff 100%); height:6px;"></div>
+      <div class="am-insight-detail" style="margin-top:10px;">The accuracy of estimates is based on factors such as past campaign data, the budget you entered, market data, targeting criteria and ad placements.</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-dim"></div>
+
+<div class="modal-stage">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">Value rules</div>
+    <div class="modal-desc">
+      Create rules to tell us how much more certain audiences, placements, products and conversion locations are worth to your business. Our system will optimize for outcomes based on these rules. <a href="#" onclick="return false;">About value rules</a>
+    </div>
+  </div>
+
+  <div class="modal-body" id="modalBody">
+    <!-- rules injected here -->
+  </div>
+
+  <div class="modal-footer-row">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <button class="btn-secondary" id="addRuleBtn">Add rule (<span id="ruleCount">1</span>/10)</button>
+      <button class="btn-link-muted" id="toggleInfoBtn">How multiple rules work</button>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary">Cancel</button>
+      <button class="btn-primary">Next</button>
+    </div>
+  </div>
+  <div class="multi-info" id="multiInfo" style="margin:0 24px 16px;">
+    <p><strong>How multiple rules work.</strong> When an audience, placement or product matches more than one rule, the highest bid adjustment is applied. Rules don't stack — so you can compose intent (e.g. "boost women's clothing +20%" alongside "boost FW26 hero products +50%") without worrying about runaway bid inflation.</p>
+  </div>
+</div>
+</div>
+
+<div class="demo-guide" id="demoGuide">
+  <strong>Try the prototype</strong><br>
+  1. Toggle <em>Product</em> ↔ <em>Audience</em> at the top of the rule<br>
+  2. Click <em>Select criteria</em> — dimensions change by type<br>
+  3. Pick values (multi-select)<br>
+  4. Tweak the bid % &amp; name the rule<br>
+  5. Hit <em>Add rule</em> to compose intent across both
+  <div class="dismiss" onclick="document.getElementById('demoGuide').classList.add('hidden')">dismiss</div>
+</div>
+
+<script>
+  // ---------- Data ----------
+  const RULE_TYPES = {
+    product: {
+      label: "Product",
+      icon: "📦",
+      dimensions: [
+        { group: "First-party signals", items: [
+          { id: "margin",        label: "Margin per product",          sub: "From your 1P data feed" },
+          { id: "stock",         label: "Available stock",             sub: "Inventory level %" },
+          { id: "return_rate",   label: "Return rate",                 sub: "From your 1P data feed" },
+          { id: "roi",           label: "Internal ROI score",          sub: "From your 1P data feed" },
+        ]},
+        { group: "Catalog attributes", items: [
+          { id: "category",      label: "Product category",            sub: "Google product taxonomy" },
+          { id: "brand",         label: "Brand",                       sub: "From your catalog feed" },
+          { id: "custom_label_0",label: "Custom label 0",              sub: "From your catalog feed" },
+          { id: "custom_label_1",label: "Custom label 1",              sub: "From your catalog feed" },
+          { id: "product_id",    label: "Specific products",           sub: "Pick by SKU" },
+        ]},
+        { group: "Lifecycle", items: [
+          { id: "is_new",        label: "New product (no signal yet)", sub: "Less than 30 days in catalog" },
+          { id: "is_seasonal",   label: "Seasonal / time-sensitive",   sub: "Tagged in your feed" },
+        ]},
+      ],
+    },
+    audience: {
+      label: "Audience",
+      icon: "👥",
+      dimensions: [
+        { group: "Demographics", items: [
+          { id: "age",           label: "Age range",                   sub: "Pick one or more brackets" },
+          { id: "gender",        label: "Gender",                      sub: "Self-reported" },
+          { id: "location",      label: "Location",                    sub: "Country, region, or DMA" },
+          { id: "language",      label: "Language",                    sub: "Preferred language" },
+        ]},
+        { group: "Custom audiences", items: [
+          { id: "custom_audience",label: "Saved custom audience",      sub: "From your audience library" },
+          { id: "lookalike",     label: "Lookalike audience",          sub: "Built from a source audience" },
+          { id: "retargeting",   label: "Site visitors (retargeting)", sub: "Pixel or CAPI signal" },
+        ]},
+        { group: "Behavior", items: [
+          { id: "purchase_freq", label: "Purchase frequency",          sub: "Lifetime orders" },
+          { id: "engagement",    label: "Engagement level",            sub: "Recent interactions" },
+        ]},
+        { group: "Placements", items: [
+          { id: "placement",     label: "Placement",                   sub: "Where the ad shows" },
+        ]},
+      ],
+    },
+  };
+
+  // For each dimension, what the value picker looks like
+  const VALUE_OPTIONS = {
+    // ---- Product ----
+    category: {
+      type: "multi",
+      placeholder: "Select categories",
+      options: [
+        "Women's clothing", "Men's clothing", "Kids' clothing",
+        "Shoes", "Bags & accessories", "Beauty",
+        "Home & garden", "Electronics", "Outerwear",
+      ],
+    },
+    brand: {
+      type: "multi",
+      placeholder: "Select brands",
+      options: [
+        "Northgate Outdoors", "Sundance Athletics", "Meridian Denim",
+        "Coastline Surf Co.", "Vesper & Vale", "Ironwood Workwear",
+        "Halcyon Activewear", "Pinecrest Apparel", "Atlas Performance",
+        "Lumen Basics", "Wildroot Co.", "Cobalt Knitwear"
+      ],
+    },
+    custom_label_0: {
+      type: "multi",
+      placeholder: "Select labels",
+      options: ["FW26-Hero", "Clearance", "New arrival", "Top seller", "Promo"],
+    },
+    custom_label_1: {
+      type: "multi",
+      placeholder: "Select labels",
+      options: ["Featured", "Restock", "Limited edition"],
+    },
+    product_id: {
+      type: "multi",
+      placeholder: "Select products",
+      options: ["SKU-88421 — Linen blazer", "SKU-77310 — Wool coat", "SKU-90115 — Suede boot"],
+    },
+    margin:      { type: "numeric", placeholder: "Set threshold", unit: "%", presets: [">", "<", "="] },
+    stock:       { type: "numeric", placeholder: "Set threshold", unit: "%", presets: [">", "<", "="] },
+    return_rate: { type: "numeric", placeholder: "Set threshold", unit: "%", presets: [">", "<", "="] },
+    roi:         { type: "numeric", placeholder: "Set threshold", unit: "",  presets: [">", "<", "="] },
+    is_new:      { type: "binary",  fixedValue: "Yes" },
+    is_seasonal: { type: "binary",  fixedValue: "Yes" },
+
+    // ---- Audience ----
+    age: {
+      type: "multi",
+      placeholder: "Select age ranges",
+      options: ["13–17", "18–24", "25–34", "35–44", "45–54", "55–64", "65+"],
+    },
+    gender: {
+      type: "multi",
+      placeholder: "Select gender",
+      options: ["Women", "Men", "All"],
+    },
+    location: {
+      type: "multi",
+      placeholder: "Select locations",
+      options: [
+        "United States", "Canada", "United Kingdom", "Germany",
+        "France", "Brazil", "Mexico", "Japan", "Australia"
+      ],
+    },
+    language: {
+      type: "multi",
+      placeholder: "Select languages",
+      options: ["English", "Spanish", "French", "German", "Portuguese", "Japanese"],
+    },
+    custom_audience: {
+      type: "multi",
+      placeholder: "Select saved audience",
+      options: ["Loyalty members", "VIP customers (last 90d)", "Cart abandoners", "Email subscribers"],
+    },
+    lookalike: {
+      type: "multi",
+      placeholder: "Select lookalike",
+      options: ["LAL 1% — Top spenders US", "LAL 2% — Repeat purchasers US", "LAL 1% — Newsletter signups"],
+    },
+    retargeting: {
+      type: "multi",
+      placeholder: "Select retargeting segment",
+      options: ["Viewed product (last 30d)", "Added to cart (last 14d)", "Purchased (last 180d)"],
+    },
+    purchase_freq: { type: "numeric", placeholder: "Lifetime orders", unit: "", presets: [">", "<", "="] },
+    engagement: {
+      type: "multi",
+      placeholder: "Engagement level",
+      options: ["High", "Medium", "Low"],
+    },
+    placement: {
+      type: "multi",
+      placeholder: "Select placements",
+      options: ["Feed", "Stories", "Reels", "Marketplace", "Search", "In-stream video"],
+    },
+  };
+
+  // ---------- State ----------
+  let rules = [makeRule()];
+  let activeDropdown = null;
+  let view = "build";  // "build" | "summary" | "success"
+
+  function makeRule(type = "product") {
+    return {
+      id: Math.random().toString(36).slice(2),
+      type,
+      criteria: [{ dimension: null, values: [], op: ">", numericValue: "" }],
+      direction: "Increase",  // or "Decrease"
+      pct: 20,
+      name: "",
+    };
+  }
+
+  // ---------- Render ----------
+  function render() {
+    if (view === "build") return renderBuild();
+    if (view === "summary") return renderSummary();
+    if (view === "success") return renderSuccess();
+  }
+
+  function renderBuild() {
+    setModalChrome({
+      title: "Value rules",
+      desc: 'Create rules to tell us how much more certain audiences, placements, products and conversion locations are worth to your business. Our system will optimize for outcomes based on these rules. <a href="#" onclick="return false;">About value rules</a>',
+      showAddRule: true,
+      showInfo: true,
+      primaryLabel: "Next",
+      primaryAction: () => { view = "summary"; render(); },
+      secondaryLabel: "Cancel",
+      secondaryAction: () => { resetAll(); },
+    });
+    const body = document.getElementById("modalBody");
+    body.innerHTML = "";
+    rules.forEach((rule, idx) => body.appendChild(ruleCard(rule, idx)));
+    document.getElementById("ruleCount").textContent = rules.length;
+    document.getElementById("addRuleBtn").disabled = rules.length >= 10;
+  }
+
+  function renderSummary() {
+    setModalChrome({
+      title: "Review your rule set",
+      desc: 'Here\u2019s what you\u2019re telling the system. Each rule below will adjust delivery for matching audiences, products, or placements. You can come back and edit any rule from the ad set.',
+      showAddRule: false,
+      showInfo: false,
+      primaryLabel: "Save rule set",
+      primaryAction: () => { view = "success"; render(); },
+      secondaryLabel: "← Back to edit",
+      secondaryAction: () => { view = "build"; render(); },
+    });
+    const body = document.getElementById("modalBody");
+    body.innerHTML = "";
+
+    const intro = document.createElement("div");
+    intro.className = "summary-intro";
+    const productCount = rules.filter(r => r.type === "product").length;
+    const audienceCount = rules.filter(r => r.type === "audience").length;
+    const parts = [];
+    if (productCount) parts.push(`<strong>${productCount} product rule${productCount > 1 ? "s" : ""}</strong>`);
+    if (audienceCount) parts.push(`<strong>${audienceCount} audience rule${audienceCount > 1 ? "s" : ""}</strong>`);
+    intro.innerHTML = `You\u2019ve composed ${parts.join(" and ")}. They\u2019ll apply to every ad in this ad set.`;
+    body.appendChild(intro);
+
+    rules.forEach((rule, idx) => body.appendChild(summaryCard(rule, idx)));
+
+    const impact = document.createElement("div");
+    impact.className = "summary-impact-box";
+    impact.innerHTML = `
+      <strong>What happens next:</strong> Delivery starts optimizing toward these rules within ~12 hours.
+      You\u2019ll see per-rule impression and conversion data in the <em>Product preferences</em> reporting breakdown by tomorrow morning.
+    `;
+    body.appendChild(impact);
+  }
+
+  function renderSuccess() {
+    setModalChrome({
+      title: "Value rules saved",
+      desc: 'Your rule set is now active on this ad set.',
+      showAddRule: false,
+      showInfo: false,
+      primaryLabel: "Done",
+      primaryAction: () => { resetAll(); },
+      secondaryLabel: "View reporting",
+      secondaryAction: () => { resetAll(); },
+    });
+    const body = document.getElementById("modalBody");
+    body.innerHTML = `
+      <div class="success-state">
+        <div class="success-icon">✓</div>
+        <div class="success-title">${rules.length} rule${rules.length > 1 ? "s" : ""} applied to this ad set</div>
+        <div class="success-sub">Delivery will start optimizing toward your rules within the next 12 hours. You\u2019ll see results in the <em>Product preferences</em> reporting breakdown tomorrow.</div>
+        <div class="success-toast-row">
+          <span>🔔</span><span>We\u2019ll notify you when the first delivery signal lands.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function setModalChrome({ title, desc, showAddRule, showInfo, primaryLabel, primaryAction, secondaryLabel, secondaryAction }) {
+    document.querySelector(".modal-title").textContent = title;
+    document.querySelector(".modal-desc").innerHTML = desc;
+
+    const addBtn = document.getElementById("addRuleBtn");
+    const infoBtn = document.getElementById("toggleInfoBtn");
+    addBtn.style.display = showAddRule ? "" : "none";
+    infoBtn.style.display = showInfo ? "" : "none";
+    document.getElementById("multiInfo").classList.remove("open");
+
+    const primaryBtn = document.querySelector(".modal-footer-row .actions .btn-primary");
+    const secondaryBtn = document.querySelector(".modal-footer-row .actions .btn-secondary");
+    primaryBtn.textContent = primaryLabel;
+    secondaryBtn.textContent = secondaryLabel;
+    primaryBtn.onclick = (e) => { e.stopPropagation(); primaryAction(); };
+    secondaryBtn.onclick = (e) => { e.stopPropagation(); secondaryAction(); };
+  }
+
+  function resetAll() {
+    rules = [makeRule()];
+    view = "build";
+    render();
+  }
+
+  // ---------- Summary card ----------
+  function summaryCard(rule, idx) {
+    const card = document.createElement("div");
+    card.className = "summary-card";
+    const typeMeta = RULE_TYPES[rule.type];
+    const nameHtml = rule.name.trim()
+      ? escapeHtml(rule.name.trim())
+      : `<span class="untitled">Untitled rule</span>`;
+    card.innerHTML = `
+      <div class="summary-card-header">
+        <div class="summary-card-title">Rule ${idx + 1} — ${nameHtml}</div>
+        <div class="summary-type-badge">${typeMeta.icon} ${typeMeta.label}</div>
+      </div>
+      <div class="summary-card-body">${ruleToSentence(rule)}</div>
+    `;
+    return card;
+  }
+
+  function ruleToSentence(rule) {
+    const dimList = RULE_TYPES[rule.type].dimensions.flatMap(g => g.items);
+    const critParts = rule.criteria.map(c => criterionToFragment(c, dimList, rule.type)).filter(Boolean);
+
+    if (critParts.length === 0) {
+      return `<div class="empty">No criteria set yet. Go back to define what this rule targets.</div>`;
+    }
+
+    const dirClass = rule.direction === "Increase" ? "bid-up" : "bid-down";
+    const dirVerb = rule.direction === "Increase" ? "Boost" : "Reduce";
+    const arrow = rule.direction === "Increase" ? "↑" : "↓";
+
+    return `
+      <div class="summary-sentence">
+        <span class="pill ${dirClass}">${arrow} ${dirVerb} bid by ${rule.pct}%</span>
+        when ${rule.type === "audience" ? "the audience" : "the product"} matches
+        ${critParts.join(' <span class="pill muted">AND</span> ')}.
+      </div>
+    `;
+  }
+
+  function criterionToFragment(crit, dimList, ruleType) {
+    if (!crit.dimension) return null;
+    const dim = dimList.find(d => d.id === crit.dimension);
+    if (!dim) return null;
+    const cfg = VALUE_OPTIONS[crit.dimension];
+    const dimLabel = `<span class="pill">${escapeHtml(dim.label)}</span>`;
+
+    if (cfg.type === "multi") {
+      if (crit.values.length === 0) {
+        return `${dimLabel} <span class="pill muted">no values selected</span>`;
+      }
+      const vals = crit.values.map(v => `<span class="pill">${escapeHtml(v)}</span>`).join(" ");
+      return `${dimLabel} is ${vals}`;
+    }
+    if (cfg.type === "numeric") {
+      if (crit.numericValue === "" || crit.numericValue == null) {
+        return `${dimLabel} <span class="pill muted">no threshold</span>`;
+      }
+      return `${dimLabel} <span class="pill">${escapeHtml(crit.op)} ${escapeHtml(String(crit.numericValue))}${cfg.unit || ""}</span>`;
+    }
+    if (cfg.type === "binary") {
+      return `${dimLabel} is <span class="pill">${escapeHtml(cfg.fixedValue)}</span>`;
+    }
+    return null;
+  }
+
+  function ruleCard(rule, idx) {
+    const card = document.createElement("div");
+    card.className = "rule-card";
+
+    const displayName = rule.name.trim() ? `: ${rule.name.trim()}` : ": Untitled rule";
+    const typeLabel = RULE_TYPES[rule.type].label;
+    card.innerHTML = `
+      <div class="rule-header">
+        <span>Rule ${idx + 1}<span class="rule-name-display">${escapeHtml(displayName)}</span></span>
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#1877f2; font-weight:700;">${RULE_TYPES[rule.type].icon} ${typeLabel}</span>
+      </div>
+      <div class="rule-body">
+        <div class="field-label">Rule type</div>
+        <div class="rule-type-tabs" data-type-tabs>
+          <button class="rule-type-tab ${rule.type === 'product' ? 'active' : ''}" data-set-type="product">📦 Product</button>
+          <button class="rule-type-tab ${rule.type === 'audience' ? 'active' : ''}" data-set-type="audience">👥 Audience</button>
+        </div>
+
+        <div class="field-label" style="margin-top:14px;">Define your rule using up to 2 criteria.</div>
+        <div class="criteria-block" data-criteria-block></div>
+        ${rule.criteria.length < 2 ? `<button class="btn-secondary" data-add-criteria>Add criteria</button>` : ""}
+
+        <div style="margin-top:18px;">
+          <div class="field-label">Choose how much to bid on outcomes that meet your criteria.</div>
+          <div class="input-row">
+            <div class="select" style="flex:1;">
+              <button class="bid-direction" data-bid-direction>
+                <span>${rule.direction} bid by</span>
+                <span class="caret">▾</span>
+              </button>
+            </div>
+            <div class="input input-suffix">
+              <input type="number" min="1" max="500" value="${rule.pct}" data-pct>
+              <span style="margin-left:4px;">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div class="field-label">Name rule</div>
+          <div class="name-input-wrap">
+            <input class="input name-input" type="text" placeholder="Untitled rule" value="${escapeAttr(rule.name)}" maxlength="50" data-name>
+            <span class="char-count">${rule.name.length}/50</span>
+          </div>
+        </div>
+      </div>
+      <div class="rule-footer">
+        ${rules.length > 1 ? `<button class="btn-secondary" data-remove>Remove</button>` : ""}
+      </div>
+    `;
+
+    // Render criteria rows
+    const cb = card.querySelector("[data-criteria-block]");
+    rule.criteria.forEach((c, ci) => cb.appendChild(criteriaRow(rule, c, ci)));
+
+    // Type tabs
+    card.querySelectorAll("[data-set-type]").forEach(tab => {
+      tab.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const newType = tab.getAttribute("data-set-type");
+        if (newType !== rule.type) {
+          rule.type = newType;
+          // Reset criteria since dimensions differ between types
+          rule.criteria = [{ dimension: null, values: [], op: ">", numericValue: "" }];
+          render();
+        }
+      });
+    });
+
+    // Wire bid direction
+    card.querySelector("[data-bid-direction]").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openDirectionMenu(e.currentTarget, rule);
+    });
+    card.querySelector("[data-pct]").addEventListener("input", (e) => {
+      rule.pct = Math.max(1, Math.min(500, parseInt(e.target.value || "0", 10)));
+    });
+    card.querySelector("[data-name]").addEventListener("input", (e) => {
+      rule.name = e.target.value;
+      card.querySelector(".rule-name-display").textContent = e.target.value.trim() ? `: ${e.target.value.trim()}` : ": Untitled rule";
+      card.querySelector(".char-count").textContent = `${e.target.value.length}/50`;
+    });
+    const addBtn = card.querySelector("[data-add-criteria]");
+    if (addBtn) addBtn.addEventListener("click", () => {
+      rule.criteria.push({ dimension: null, values: [], op: ">", numericValue: "" });
+      render();
+    });
+    const rmBtn = card.querySelector("[data-remove]");
+    if (rmBtn) rmBtn.addEventListener("click", () => {
+      rules = rules.filter(r => r !== rule);
+      render();
+    });
+
+    return card;
+  }
+
+  function criteriaRow(rule, crit, idx) {
+    const row = document.createElement("div");
+    row.style.marginBottom = idx < rule.criteria.length - 1 ? "10px" : "0";
+
+    // Dimension picker
+    const dimWrap = document.createElement("div");
+    dimWrap.className = "dropdown-wrap";
+    dimWrap.style.marginBottom = "8px";
+
+    const dimList = RULE_TYPES[rule.type].dimensions;
+    const dimLabel = crit.dimension
+      ? dimList.flatMap(g => g.items).find(i => i.id === crit.dimension)?.label
+      : null;
+
+    const dimBtn = document.createElement("button");
+    dimBtn.className = "select";
+    dimBtn.innerHTML = dimLabel
+      ? `<span>${escapeHtml(dimLabel)}</span><span class="caret">▾</span>`
+      : `<span class="placeholder">Select criteria</span><span class="caret">▾</span>`;
+    dimBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openDimensionMenu(dimBtn, rule, crit);
+    });
+    dimWrap.appendChild(dimBtn);
+    row.appendChild(dimWrap);
+
+    // Value picker (only if dimension selected)
+    if (crit.dimension) {
+      const cfg = VALUE_OPTIONS[crit.dimension];
+      if (cfg.type === "multi") {
+        const valWrap = document.createElement("div");
+        valWrap.className = "dropdown-wrap";
+        const valBtn = document.createElement("button");
+        valBtn.className = "select";
+        if (crit.values.length === 0) {
+          valBtn.innerHTML = `<span class="placeholder">${escapeHtml(cfg.placeholder)}</span><span class="caret">▾</span>`;
+        } else {
+          const chips = crit.values.map(v =>
+            `<span class="chip">${escapeHtml(v)}<span class="x" data-remove-value="${escapeAttr(v)}">×</span></span>`
+          ).join("");
+          valBtn.innerHTML = `<div class="chips">${chips}</div><span class="caret">▾</span>`;
+        }
+        valBtn.addEventListener("click", (e) => {
+          // Don't open menu if clicked on a chip × — handle removal
+          if (e.target.matches("[data-remove-value]")) {
+            const v = e.target.getAttribute("data-remove-value");
+            crit.values = crit.values.filter(x => x !== v);
+            render();
+            return;
+          }
+          e.stopPropagation();
+          openValueMenu(valBtn, rule, crit);
+        });
+        valWrap.appendChild(valBtn);
+        row.appendChild(valWrap);
+      } else if (cfg.type === "numeric") {
+        const numRow = document.createElement("div");
+        numRow.className = "input-row";
+        numRow.innerHTML = `
+          <div class="select" style="flex:0 0 80px;">
+            <span>${crit.op}</span><span class="caret">▾</span>
+          </div>
+          <input class="input" type="number" placeholder="${cfg.placeholder}" value="${crit.numericValue}" style="flex:1;">
+          <div class="input" style="flex:0 0 50px; justify-content:center; color:#65676b;">${cfg.unit || "—"}</div>
+        `;
+        // op cycler
+        const opEl = numRow.children[0];
+        opEl.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const ops = cfg.presets;
+          const next = ops[(ops.indexOf(crit.op) + 1) % ops.length];
+          crit.op = next;
+          render();
+        });
+        const numInput = numRow.querySelector("input[type=number]");
+        numInput.addEventListener("input", (e) => { crit.numericValue = e.target.value; });
+        row.appendChild(numRow);
+      } else if (cfg.type === "binary") {
+        const binEl = document.createElement("div");
+        binEl.className = "select";
+        binEl.style.background = "#f0f2f5";
+        binEl.style.cursor = "default";
+        binEl.innerHTML = `<span>${cfg.fixedValue}</span>`;
+        row.appendChild(binEl);
+      }
+    }
+
+    return row;
+  }
+
+  // ---------- Dropdown menus ----------
+  function closeAllMenus() {
+    document.querySelectorAll(".dropdown-menu").forEach(m => m.remove());
+    activeDropdown = null;
+    window.removeEventListener("scroll", repositionActive, true);
+    window.removeEventListener("resize", repositionActive);
+  }
+
+  function positionMenu(menu, anchor, opts = {}) {
+    const rect = anchor.getBoundingClientRect();
+    const width = opts.width || rect.width;
+    const gap = 4;
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+
+    // Make sure menu is in DOM and measurable
+    menu.style.visibility = "hidden";
+    menu.style.display = "block";
+    menu.style.maxHeight = "";
+    menu.style.width = width + "px";
+    const menuRect = menu.getBoundingClientRect();
+    const menuH = menuRect.height;
+
+    const spaceBelow = vh - rect.bottom - 8;
+    const spaceAbove = rect.top - 8;
+
+    let top;
+    if (menuH + gap <= spaceBelow || spaceBelow >= spaceAbove) {
+      // place below
+      top = rect.bottom + gap;
+      menu.style.maxHeight = Math.max(120, spaceBelow - gap) + "px";
+    } else {
+      // place above
+      const maxH = Math.max(120, spaceAbove - gap);
+      menu.style.maxHeight = maxH + "px";
+      const useH = Math.min(menuH, maxH);
+      top = rect.top - gap - useH;
+    }
+
+    let left = rect.left;
+    if (left + width > vw - 8) left = vw - 8 - width;
+    if (left < 8) left = 8;
+
+    menu.style.top = top + "px";
+    menu.style.left = left + "px";
+    menu.style.visibility = "visible";
+  }
+
+  function repositionActive() {
+    if (activeDropdown && activeDropdown._anchor) {
+      positionMenu(activeDropdown, activeDropdown._anchor, activeDropdown._opts || {});
+    }
+  }
+
+  function attachMenu(menu, anchor, opts = {}) {
+    document.body.appendChild(menu);
+    menu._anchor = anchor;
+    menu._opts = opts;
+    positionMenu(menu, anchor, opts);
+    activeDropdown = menu;
+    window.addEventListener("scroll", repositionActive, true);
+    window.addEventListener("resize", repositionActive);
+  }
+
+  function openDimensionMenu(anchor, rule, crit) {
+    closeAllMenus();
+    const menu = document.createElement("div");
+    menu.className = "dropdown-menu open";
+    const dimList = RULE_TYPES[rule.type].dimensions;
+    dimList.forEach(group => {
+      const section = document.createElement("div");
+      section.className = "dropdown-section";
+      section.innerHTML = `<div class="dropdown-section-label">${escapeHtml(group.group)}</div>`;
+      group.items.forEach(item => {
+        const di = document.createElement("div");
+        di.className = "dropdown-item" + (crit.dimension === item.id ? " selected" : "");
+        di.innerHTML = `
+          <div class="item-main">
+            <div>${escapeHtml(item.label)}</div>
+            <div class="dropdown-item-sub">${escapeHtml(item.sub)}</div>
+          </div>
+          <span class="check">✓</span>
+        `;
+        di.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (crit.dimension !== item.id) {
+            crit.dimension = item.id;
+            crit.values = [];
+            crit.numericValue = "";
+            crit.op = VALUE_OPTIONS[item.id].presets ? VALUE_OPTIONS[item.id].presets[0] : ">";
+          }
+          closeAllMenus();
+          render();
+        });
+        section.appendChild(di);
+      });
+      menu.appendChild(section);
+    });
+    attachMenu(menu, anchor);
+  }
+
+  function openValueMenu(anchor, rule, crit) {
+    closeAllMenus();
+    const cfg = VALUE_OPTIONS[crit.dimension];
+    const menu = document.createElement("div");
+    menu.className = "dropdown-menu open";
+    cfg.options.forEach(opt => {
+      const di = document.createElement("div");
+      const isSel = crit.values.includes(opt);
+      di.className = "dropdown-item" + (isSel ? " selected" : "");
+      di.innerHTML = `<div class="item-main">${escapeHtml(opt)}</div><span class="check">✓</span>`;
+      di.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (isSel) crit.values = crit.values.filter(v => v !== opt);
+        else crit.values = [...crit.values, opt];
+        // Re-render but keep this menu open by re-opening after
+        render();
+        // Find the matching value picker for this rule + criterion and re-open
+        const ruleIdx = rules.indexOf(rule);
+        const critIdx = rule.criteria.indexOf(crit);
+        const card = document.querySelectorAll(".rule-card")[ruleIdx];
+        if (card) {
+          const rows = card.querySelectorAll("[data-criteria-block] > div");
+          const row = rows[critIdx];
+          if (row) {
+            const selects = row.querySelectorAll(".dropdown-wrap .select");
+            if (selects[1]) openValueMenu(selects[1], rule, crit);
+          }
+        }
+      });
+      menu.appendChild(di);
+    });
+    attachMenu(menu, anchor);
+  }
+
+  function openDirectionMenu(anchor, rule) {
+    closeAllMenus();
+    const menu = document.createElement("div");
+    menu.className = "dropdown-menu open";
+    ["Increase", "Decrease"].forEach(dir => {
+      const di = document.createElement("div");
+      di.className = "dropdown-item" + (rule.direction === dir ? " selected" : "");
+      di.innerHTML = `<div class="item-main">${dir} bid by</div><span class="check">✓</span>`;
+      di.addEventListener("click", (e) => {
+        e.stopPropagation();
+        rule.direction = dir;
+        closeAllMenus();
+        render();
+      });
+      menu.appendChild(di);
+    });
+    // For the bid direction button, anchor is the inner button; use its parent .select for width
+    const parentSelect = anchor.closest(".select") || anchor;
+    attachMenu(menu, parentSelect, { width: Math.max(parentSelect.getBoundingClientRect().width, 200) });
+  }
+
+  // ---------- Events ----------
+  document.addEventListener("click", closeAllMenus);
+
+  document.getElementById("addRuleBtn").addEventListener("click", () => {
+    if (rules.length < 10) {
+      // Default new rule to the same type as the most recent rule
+      const lastType = rules[rules.length - 1]?.type || "product";
+      rules.push(makeRule(lastType));
+      render();
+    }
+  });
+
+  document.getElementById("toggleInfoBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("multiInfo").classList.toggle("open");
+  });
+
+  // ---------- Utils ----------
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+    }[m]));
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // ---------- Init ----------
+  render();
+</script>
+
+</body>
+</html>
