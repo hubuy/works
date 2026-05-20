@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promoted Products — Behavior Visualization</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #2a2a2a;
+    --text: #f0f0f0;
+    --text-dim: #aaa;
+    --accent: #3b82f6;
+    --accent-dim: rgba(59,130,246,0.12);
+    --purple: #a855f7;
+    --amber: #f59e0b;
+    --green: #22c55e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 20px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .try-hint { font-size: 11px; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .try-hint::before { content: '→'; font-size: 14px; }
+
+  .interactive-wrap { display: grid; grid-template-columns: 1fr 1.1fr; gap: 20px; align-items: start; width: 100%; max-width: 1000px; }
+  @media (max-width: 760px) { .interactive-wrap { grid-template-columns: 1fr; } }
+
+  .interactive-dropdown { background: #1a1a1a; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .interactive-dropdown .ui-mock-header { background: #0f0f0f; padding: 10px 14px; display: flex; align-items: center; border-bottom: 1px solid var(--border); gap: 6px; }
+  .ui-mock-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .ui-mock-dot.r { background: #ff5f57; }
+  .ui-mock-dot.y { background: #febc2e; }
+  .ui-mock-dot.g { background: #28c840; }
+  .ui-mock-title { margin-left: 12px; font-size: 12px; color: #777; font-weight: 500; }
+  .interactive-dropdown .ui-mock-body { padding: 18px; }
+  .mock-label { font-size: 13px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+  .mock-sublabel { font-size: 12px; color: #777; margin-bottom: 16px; }
+
+  .interactive-option { padding: 12px 14px; font-size: 13px; color: var(--text-dim); border-radius: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.18s ease; margin-bottom: 6px; background: #1f1f1f; border: 1px solid transparent; }
+  .interactive-option:hover { background: #252525; }
+  .interactive-option.active { background: var(--accent-dim); border-color: var(--accent); }
+  .radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #555; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .interactive-option.active .radio { border-color: var(--accent); }
+  .interactive-option.active .radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .interactive-option .opt-text { flex: 1; }
+  .interactive-option .opt-title { font-weight: 500; color: var(--text); font-size: 13px; line-height: 1.4; }
+  .rec-badge { font-size: 10px; background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: auto; }
+
+  .value-prop-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; min-height: 340px; }
+  .value-prop-card .vp-tag { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
+  .value-prop-card .vp-tag.tag-blue { color: var(--accent); }
+  .value-prop-card .vp-tag.tag-purple { color: var(--purple); }
+  .value-prop-card .vp-tag.tag-amber { color: var(--amber); }
+  .value-prop-card h4 { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  .value-prop-card .vp-body { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+  .value-prop-card .vp-example { font-size: 13px; color: var(--text-dim); background: rgba(255,255,255,0.04); border-radius: 8px; padding: 14px; line-height: 1.55; }
+  .value-prop-card .vp-example strong { color: var(--text); display: block; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .value-prop-card .vp-chips-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-top: 16px; margin-bottom: 8px; }
+  .value-prop-card .vp-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .vp-chip { width: 32px; height: 32px; border-radius: 6px; background: #2a2a2a; border: 1px solid #333; position: relative; }
+  .vp-chip.in-set { background: rgba(59,130,246,0.18); border-color: var(--accent); }
+  .vp-chip.expanded { background: rgba(34,197,94,0.18); border-color: var(--green); }
+  .vp-chip.expanded::after { content: '+'; position: absolute; top: -3px; right: -3px; font-size: 13px; color: var(--green); font-weight: 700; line-height: 1; }
+  .vp-chip.classifier { background: rgba(168,85,247,0.18); border-color: var(--purple); }
+</style>
+</head>
+<body>
+
+<div style="width:100%; max-width:1000px;">
+  <div class="try-hint">Click an option to see how it behaves</div>
+
+  <div class="interactive-wrap">
+    <div class="interactive-dropdown">
+      <div class="ui-mock-header">
+        <div class="ui-mock-dot r"></div><div class="ui-mock-dot y"></div><div class="ui-mock-dot g"></div>
+        <span class="ui-mock-title">Ads Manager — Promoted Products</span>
+      </div>
+      <div class="ui-mock-body">
+        <div class="mock-label">Promoted Products</div>
+        <div class="mock-sublabel">Choose how the platform selects products for your ads</div>
+
+        <div class="interactive-option active" data-option="1" onclick="selectOption(1)">
+          <div class="radio"></div>
+          <div class="opt-text">
+            <div class="opt-title">Include products outside of this set to maximize outcomes</div>
+          </div>
+          <div class="rec-badge">Recommended</div>
+        </div>
+
+        <div class="interactive-option" data-option="2" onclick="selectOption(2)">
+          <div class="radio"></div>
+          <div class="opt-text">
+            <div class="opt-title">Include relevant products outside of this set</div>
+          </div>
+        </div>
+
+        <div class="interactive-option" data-option="3" onclick="selectOption(3)">
+          <div class="radio"></div>
+          <div class="opt-text">
+            <div class="opt-title">Only include products from this set</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="value-prop-card" id="value-prop-card"></div>
+  </div>
+</div>
+
+<script>
+  const valueProps = {
+    1: {
+      tagClass: 'tag-blue',
+      tag: 'Performance-first expansion',
+      title: 'We expand for outcomes',
+      body: 'The system surfaces high-performing products from across your catalog — even if they fall outside the set you selected. Best when you trust the algorithm to find what is working.',
+      exampleLabel: 'Concrete example',
+      exampleBody: 'Your "Summer Sandals" set + the system also surfaces sunglasses & beachwear if they are driving conversions for your audience.',
+      chipsLabel: 'What ships in the ad',
+      chips: [
+        {cls:'in-set'},{cls:'in-set'},{cls:'in-set'},{cls:'in-set'},{cls:'in-set'},
+        {cls:'expanded'},{cls:'expanded'},{cls:'expanded'}
+      ]
+    },
+    2: {
+      tagClass: 'tag-purple',
+      tag: 'Relevance-first expansion',
+      title: 'We expand for category coherence',
+      body: 'An LLM classifier expands your set with semantically related products. Best when you want growth — but with explicit category boundaries the algorithm respects.',
+      exampleLabel: 'Concrete example',
+      exampleBody: 'Your "Summer Sandals" set + classifier adds espadrilles & flip-flops, but excludes sunglasses (different category).',
+      chipsLabel: 'What ships in the ad',
+      chips: [
+        {cls:'in-set'},{cls:'in-set'},{cls:'in-set'},{cls:'in-set'},{cls:'in-set'},
+        {cls:'classifier'},{cls:'classifier'}
+      ]
+    },
+    3: {
+      tagClass: 'tag-amber',
+      tag: 'Strict containment',
+      title: 'We respect your selection',
+      body: 'Ads show only products from your specified set. Best for advertisers with strict catalog boundaries — regulated categories or seasonal launches.',
+      exampleLabel: 'Concrete example',
+      exampleBody: 'Your "Summer Sandals" set → ads show ONLY those 5 SKUs. No expansion, no surprises.',
+      chipsLabel: 'What ships in the ad',
+      chips: [
+        {cls:'in-set'},{cls:'in-set'},{cls:'in-set'},{cls:'in-set'},{cls:'in-set'}
+      ]
+    }
+  };
+
+  function selectOption(n) {
+    document.querySelectorAll('.interactive-option').forEach(el => el.classList.remove('active'));
+    const target = document.querySelector('.interactive-option[data-option="' + n + '"]');
+    if (target) target.classList.add('active');
+    renderValueProp(n);
+  }
+
+  function renderValueProp(n) {
+    const v = valueProps[n];
+    const chipsHtml = v.chips.map(c => '<div class="vp-chip ' + c.cls + '"></div>').join('');
+    document.getElementById('value-prop-card').innerHTML =
+      '<div class="vp-tag ' + v.tagClass + '">' + v.tag + '</div>' +
+      '<h4>' + v.title + '</h4>' +
+      '<div class="vp-body">' + v.body + '</div>' +
+      '<div class="vp-example"><strong>' + v.exampleLabel + '</strong>' + v.exampleBody + '</div>' +
+      '<div class="vp-chips-label">' + v.chipsLabel + '</div>' +
+      '<div class="vp-chips">' + chipsHtml + '</div>';
+  }
+
+  renderValueProp(1);
+</script>
+
+</body>
+</html>
