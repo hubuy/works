@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Review — Hub Uy</title>
+<meta name="description" content="Two case studies on designing the interface between humans and AI delivery systems. 20-minute walkthrough.">
+<meta property="og:title" content="Portfolio Review — Hub Uy">
+<meta property="og:description" content="Two case studies on designing the interface between humans and AI delivery systems. 20-minute walkthrough.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Portfolio Review — Hub Uy">
+<meta name="twitter:description" content="Two case studies on designing the interface between humans and AI delivery systems. 20-minute walkthrough.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f4;
+    --surface: #f0ece4;
+    --surface-2: #e8e3da;
+    --border: #d4cfc6;
+    --text: #2c2c2c;
+    --text-dim: #5a5a5a;
+    --text-dimmer: #8a8a8a;
+    --accent: #e63b19;
+    --accent-dim: rgba(230,59,25,0.10);
+    --green: #1a8a4a;
+    --green-dim: rgba(26,138,74,0.10);
+    --amber: #c27800;
+    --amber-dim: rgba(194,120,0,0.10);
+    --red: #c0392b;
+    --red-dim: rgba(192,57,43,0.10);
+    --purple: #7c3aed;
+    --purple-dim: rgba(124,58,237,0.10);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    background: #faf8f4;
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Deck container */
+  .deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    display: none;
+    flex-direction: column;
+    padding: 60px 80px;
+    overflow: auto;
+  }
+  .slide.active { display: flex; }
+  .slide h1, .slide h2, .slide h3, .slide h4, .quote, .ts-headline {
+    font-family: 'Outfit', -apple-system, sans-serif;
+  }
+
+  /* 16:9 aware: cap content width on huge screens */
+  .slide-inner {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .slide.top .slide-inner { justify-content: flex-start; padding-top: 40px; }
+
+  /* Typography */
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+  .slide h1 {
+    font-size: 88px;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+  }
+  .slide h2 {
+    font-size: 56px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 28px;
+  }
+  .slide h3 {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    margin-top: 24px;
+  }
+  .slide p {
+    font-size: 22px;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    max-width: 900px;
+  }
+  .slide p.lead {
+    font-size: 28px;
+    color: var(--text);
+    max-width: 1000px;
+  }
+  .slide p strong { color: var(--text); }
+  .slide ul {
+    list-style: none;
+    margin: 16px 0;
+  }
+  .slide ul li {
+    font-size: 22px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    padding-left: 28px;
+    position: relative;
+    max-width: 900px;
+  }
+  .slide ul li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .slide ul li strong { color: var(--text); }
+
+  /* Pull quote */
+  .quote {
+    font-size: 44px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+    border-left: 4px solid var(--accent);
+    padding: 16px 0 16px 36px;
+    margin: 30px 0;
+    max-width: 1100px;
+  }
+  .quote .attribution {
+    display: block;
+    font-size: 18px;
+    color: var(--text-dim);
+    margin-top: 18px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  /* Stat block */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin: 36px 0;
+  }
+  .stat-row.two { grid-template-columns: repeat(2, 1fr); }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+  }
+  .stat-card .stat-label {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .stat-card .stat-num {
+    font-size: 68px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 14px;
+    letter-spacing: -2px;
+  }
+  .stat-card .stat-desc {
+    font-size: 16px;
+    color: var(--text-dim);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* Two-column comparison */
+  .comp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin: 32px 0;
+  }
+  .comp-row.three { grid-template-columns: repeat(3, 1fr); }
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+  }
+  .comp-card.red { border-color: rgba(239,68,68,0.4); background: var(--red-dim); }
+  .comp-card.green { border-color: rgba(34,197,94,0.4); background: var(--green-dim); }
+  .comp-card.accent { border-color: var(--accent); background: var(--accent-dim); }
+  .comp-card .tag {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
+  .comp-card .tag.red { color: var(--red); }
+  .comp-card .tag.green { color: var(--green); }
+  .comp-card .tag.accent { color: var(--accent); }
+  .comp-card h4 {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .comp-card p {
+    font-size: 18px;
+    color: var(--text-dim);
+    margin: 0;
+    line-height: 1.5;
+    max-width: none;
+  }
+
+  /* Image / video slot */
+  .media-frame {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    margin: 24px 0;
+    border: 1px solid var(--border);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  .media-frame img,
+  .media-frame video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    object-fit: contain;
+  }
+  .media-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+  }
+  .media-pair .media-frame { margin: 0; }
+
+  /* Section title slides */
+  .slide.section-title {
+    background: linear-gradient(135deg, #faf8f4 0%, #f0ece4 100%);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .slide.section-title .slide-inner { justify-content: center; align-items: center; text-align: center; }
+  .slide.section-title .eyebrow { font-size: 16px; }
+  .slide.section-title h1 { font-size: 96px; }
+
+  /* Title slide */
+  .slide.title-slide {
+    background: #faf8f4;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Subtle ambient glow — keeps the dark surface from going flat */
+  .slide.title-slide::before {
+    content: "";
+    position: absolute;
+    width: 70vw;
+    height: 70vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(230,59,25,0.06) 0%, rgba(230,59,25,0) 60%);
+    top: -25vw;
+    right: -20vw;
+    pointer-events: none;
+  }
+  .slide.title-slide .slide-inner {
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+    padding: 40px 0;
+  }
+  /* Top meta strip */
+  .ts-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ts-meta-row .ts-meta-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ts-meta-row .ts-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px rgba(230,59,25,0.18);
+  }
+  .ts-meta-row .ts-meta-label {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .ts-meta-row .ts-meta-right {
+    font-size: 13px;
+    color: var(--text-dimmer);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* Name as graphic */
+  .ts-name {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    line-height: 0.9;
+    margin: 24px 0;
+  }
+  .ts-name .ts-name-text {
+    font-size: clamp(20px, 1.8vw, 28px);
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    color: var(--text-dim);
+    line-height: 1.2;
+  }
+  .ts-name .ts-name-text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .ts-name .ts-name-text .ts-dot {
+    color: var(--accent);
+  }
+
+  /* Headline (the hero) */
+  .ts-headline {
+    font-size: clamp(48px, 7vw, 88px);
+    font-weight: 700;
+    line-height: 1.05;
+    max-width: 1100px;
+    color: var(--text);
+    letter-spacing: -2px;
+    margin: 0;
+  }
+  .ts-headline .ts-accent {
+    color: var(--accent);
+  }
+
+  /* Bottom strip: role + date */
+  .ts-foot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+  .ts-foot .ts-foot-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ts-foot .ts-foot-label {
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    font-weight: 600;
+  }
+  .ts-foot .ts-foot-value {
+    font-size: 16px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .ts-foot .ts-foot-cta {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .ts-foot .ts-foot-cta .ts-arrow {
+    display: inline-block;
+    margin-left: 8px;
+    color: var(--accent);
+    animation: tsBlink 1.4s ease-in-out infinite;
+  }
+  @keyframes tsBlink {
+    0%, 100% { opacity: 1; transform: translateX(0); }
+    50% { opacity: 0.5; transform: translateX(4px); }
+  }
+
+  @media (max-width: 760px) {
+    .ts-name .ts-name-text { letter-spacing: -4px; }
+  }
+
+  /* About me slide */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .about-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+  }
+  .about-card h4 { font-size: 20px; margin-bottom: 14px; }
+  .about-card p { font-size: 17px; margin: 0; }
+  .about-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 24px;
+  }
+  .about-meta .item .label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .about-meta .item .value { font-size: 16px; color: var(--text); }
+
+  /* Roadmap (use case grid) */
+  .uc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin: 28px 0;
+  }
+  .uc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .uc-card.priority { border-color: var(--accent); background: var(--accent-dim); }
+  .uc-card .uc-stat {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .uc-card .uc-stat .uc-denom { font-size: 18px; color: var(--text-dim); }
+  .uc-card h4 { font-size: 20px; margin-bottom: 8px; }
+  .uc-card p { font-size: 16px; margin: 0; }
+
+  /* Big headline slide */
+  .slide.big {
+    justify-content: center;
+  }
+  .slide.big .slide-inner { justify-content: center; }
+  .slide.big h2 {
+    font-size: 72px;
+    line-height: 1.1;
+    margin-bottom: 32px;
+  }
+
+  /* Reflection slides */
+  .reflection-grid {
+    display: grid;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .reflection-item {
+    background: var(--surface);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 24px 28px;
+  }
+  .reflection-item .num {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .reflection-item h4 { font-size: 24px; margin-bottom: 8px; }
+  .reflection-item p { font-size: 17px; margin: 0; max-width: none; }
+
+  /* Prototype frame slide */
+  .prototype-frame {
+    flex: 1;
+    background: transparent;
+    border-radius: 0;
+    overflow: hidden;
+    margin: 24px 0 0;
+    min-height: 0;
+    padding: 0;
+  }
+  .prototype-frame iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* Annotated video pair (Slide 8) */
+  .annotated-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+  .annotated-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 14px;
+  }
+  .annotated-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .step-badge {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--red);
+    border: 1.5px solid rgba(239,68,68,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'SF Mono', Menlo, monospace;
+  }
+  .step-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.25;
+  }
+  .step-title .where {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  /* Uniform video frame — both videos render at the same fixed height */
+  .annotated-col .media-frame {
+    margin: 0;
+    flex: 0 0 auto;
+    height: 500px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+  }
+  .annotated-col .media-frame video {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .annotation-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .annotation-list li {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 6px;
+    padding-left: 18px;
+    position: relative;
+    max-width: none;
+  }
+  .annotation-list li:last-child { margin-bottom: 0; }
+  .annotation-list li::before {
+    content: "✕";
+    position: absolute;
+    left: 0;
+    color: var(--red);
+    font-weight: 700;
+    font-size: 11px;
+    top: 4px;
+  }
+  .annotation-list li strong { color: var(--text); font-weight: 600; }
+
+  /* Discovery methodology strip (Slide 10) */
+  .method-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 20px 0 0;
+    padding: 12px 18px;
+    background: transparent;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+  }
+  .method-strip .method-item .label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .method-strip .method-item .value {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .discovery-intro {
+    font-size: 18px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    max-width: 1000px;
+    margin-bottom: 4px;
+  }
+  .discovery-intro strong { color: var(--text); }
+  .uc-grid.compact .uc-card { padding: 24px 26px; }
+  .uc-grid.compact .uc-card .uc-stat { font-size: 42px; margin-bottom: 8px; }
+  .uc-grid.compact .uc-card .uc-stat .uc-denom { font-size: 20px; }
+  .uc-grid.compact .uc-card h4 { font-size: 20px; margin-bottom: 10px; }
+  .uc-grid.compact .uc-card p { font-size: 16px; line-height: 1.5; }
+
+  /* Reporting slide annotations (Slide 14) */
+  .report-stage {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 28px;
+    flex: 1;
+    min-height: 0;
+    margin: 20px 0 0;
+    align-items: center;
+  }
+  .report-frame {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    max-height: calc(100vh - 280px);
+  }
+  .report-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+  }
+  .report-callouts {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .report-callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .report-callout .callout-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .report-callout .callout-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .report-callout .callout-text em {
+    color: var(--text-dim);
+    font-style: normal;
+    font-size: 13px;
+    display: block;
+    margin-top: 6px;
+  }
+
+  /* Impact slide — hero stat + supporting (Slide 15) */
+  .impact-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 28px;
+    margin: 28px 0 24px;
+  }
+  .impact-hero {
+    background: linear-gradient(135deg, var(--accent-dim) 0%, rgba(124,58,237,0.08) 100%);
+    border: 1px solid rgba(230,59,25,0.3);
+    border-radius: 14px;
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .impact-hero .impact-hero-label {
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .impact-hero .impact-hero-nums {
+    display: flex;
+    gap: 36px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .impact-hero .num-pair .num {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .impact-hero .num-pair .num.green { color: var(--green); }
+  .impact-hero .num-pair .num.red { color: var(--red); }
+  .impact-hero .num-pair .label {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+  .impact-hero .desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0;
+    max-width: none;
+  }
+  .impact-side {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .impact-side-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .impact-side-card .ic-label {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .impact-side-card .ic-num {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+  .impact-side-card .ic-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.45;
+    margin: 0;
+    max-width: none;
+  }
+  .impact-disclaimer {
+    font-size: 13px;
+    color: var(--text-dimmer);
+    font-style: italic;
+    margin: 0;
+    max-width: none;
+  }
+
+  /* Product comparison cards with screenshots (Slide 19) */
+  .product-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin: 56px 0 0;
+    align-items: start;
+  }
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .product-card .pc-image {
+    background: var(--surface);
+    padding: 0;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .product-card .pc-image img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 0;
+    box-shadow: none;
+    display: block;
+  }
+  .product-card .pc-body {
+    padding: 18px 22px 20px;
+    flex: 0 0 auto;
+    border-top: 1px solid var(--border);
+  }
+  .product-card .pc-tag {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .product-card .pc-title {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+  .product-card .pc-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0;
+    max-width: none;
+  }
+  .product-card .pc-desc strong { color: var(--text); font-weight: 600; }
+
+  /* Chrome (progress + counter + nav hint) */
+  .chrome {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .progress {
+    height: 3px;
+    background: var(--accent);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s;
+    z-index: 200;
+  }
+  .counter {
+    background: rgba(250,248,244,0.90);
+    backdrop-filter: blur(8px);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    border: 1px solid var(--border);
+  }
+
+  /* Speaker notes panel */
+  .notes-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 35vh;
+    background: rgba(250,248,244,0.97);
+    backdrop-filter: blur(12px);
+    border-top: 2px solid var(--accent);
+    padding: 24px 60px;
+    overflow-y: auto;
+    z-index: 150;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+  }
+  .notes-panel.open { transform: translateY(0); }
+  .notes-panel h5 {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .notes-panel .note-content {
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .notes-panel .note-content p { font-size: 16px; margin-bottom: 10px; color: var(--text); max-width: none; }
+  .notes-panel .note-content strong { color: var(--accent); }
+
+  /* Help overlay */
+  .help-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(44,44,44,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .help-overlay.open { display: flex; }
+  .help-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px 48px;
+    max-width: 500px;
+  }
+  .help-box h3 { margin: 0 0 20px; font-size: 22px; }
+  .help-box dl { display: grid; grid-template-columns: auto 1fr; gap: 10px 24px; font-size: 15px; }
+  .help-box dt {
+    background: #faf8f4;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 13px;
+    color: var(--accent);
+    text-align: center;
+  }
+  .help-box dd { color: var(--text-dim); align-self: center; }
+  .help-box .dismiss-hint {
+    margin-top: 22px;
+    font-size: 13px;
+    color: var(--text-dimmer);
+    text-align: center;
+  }
+
+  /* Print styles — one slide per page */
+  @media print {
+    @page { size: 1600px 900px landscape; margin: 0; }
+    html, body { overflow: visible; height: auto; background: #faf8f4; }
+    .deck { height: auto; }
+    .slide {
+      display: flex !important;
+      page-break-after: always;
+      position: relative;
+      width: 1600px;
+      height: 900px;
+      inset: auto;
+    }
+    .chrome, .notes-panel, .help-overlay, .progress { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ============================================== -->
+  <!-- INTRO -->
+  <!-- ============================================== -->
+
+  <!-- Slide 1 — Title -->
+  <section class="slide title-slide active" data-notes="
+    <p><strong>Opening line:</strong> Hi, I'm Hub. Thanks for having me. Over the next 20 minutes I'll walk you through two case studies that together represent the work I'm most proud of — both are about designing the interface between humans and AI delivery systems.</p>
+    <p><strong>Pace:</strong> Don't rush this slide. Land your name, your role, and a beat of eye contact before clicking through.</p>
+  ">
+    <div class="slide-inner">
+      <!-- Top meta -->
+      <div class="ts-meta-row">
+        <div class="ts-meta-left">
+          <div class="ts-status-dot"></div>
+          <div class="ts-meta-label">Portfolio Review · 2026</div>
+        </div>
+        <div class="ts-meta-right">2 cases · ~20 min</div>
+      </div>
+
+      <!-- Center: Headline as hero + quiet name credit -->
+      <div>
+        <h1 class="ts-headline">
+          Designing the interface between humans and <span class="ts-accent">AI delivery systems</span>.
+        </h1>
+        <div class="ts-name">
+          <div class="ts-name-text">A portfolio review by <strong>Hub Uy</strong><span class="ts-dot">.</span></div>
+        </div>
+      </div>
+
+      <!-- Bottom: role + date + start cue -->
+      <div class="ts-foot">
+        <div class="ts-foot-item">
+          <div class="ts-foot-label">Role</div>
+          <div class="ts-foot-value">Product Designer</div>
+        </div>
+        <div class="ts-foot-item">
+          <div class="ts-foot-label">Team</div>
+          <div class="ts-foot-value">Core Ads Growth · Meta</div>
+        </div>
+        <div class="ts-foot-cta">Press → to begin <span class="ts-arrow">→</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 2 — About me -->
+  <section class="slide top" data-notes="
+    <p><strong>About me — keep this tight.</strong> 60–90 seconds max. They're here to see the work, not your CV.</p>
+    <p><strong>Hit:</strong> What I design (AI delivery surfaces for ecomm advertisers), how long I've been at Meta (4+ years), what's underneath the surface work (translating between humans who think in intent and systems that think in numbers).</p>
+    <p><strong>Bridge:</strong> &quot;Both cases I'll show today live at that interface — one is about expression, one is about disambiguation.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">About</div>
+      <h2>I design the surfaces where human intent meets machine optimization.</h2>
+      <div class="about-grid">
+        <div>
+          <p class="lead">For the last four years at Meta, I've worked on the e-commerce edge of the ads platform — the surfaces sophisticated advertisers use to teach our AI delivery system what their business actually values.</p>
+          <p>It's a deceptively narrow problem space with high stakes: get the surface wrong and advertisers go around it. Get it right and the model learns from the best signal it could possibly have — humans expressing intent in their own language.</p>
+        </div>
+        <div>
+          <div class="about-card">
+            <h4>Today's focus areas</h4>
+            <p style="margin-bottom:12px;">→ AI delivery systems</p>
+            <p style="margin-bottom:12px;">→ E-commerce ads (DTC, marketplaces, CPG, retail)</p>
+            <p style="margin-bottom:12px;">→ Strategy that frames a problem space, not just a screen</p>
+            <p>→ Cross-product design at the platform level</p>
+            <div class="about-meta">
+              <div class="item"><div class="label">Role</div><div class="value">Lead Product Designer</div></div>
+              <div class="item"><div class="label">Tenure</div><div class="value">4+ years at Meta</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3 — What I'll cover -->
+  <section class="slide top" data-notes="
+    <p><strong>This is your roadmap.</strong> Tell them what they're about to see so they can pattern-match as you go.</p>
+    <p><strong>Why two cases together:</strong> One is about a single feature, deeply designed. The other is about a strategic decision across three products. Together they show range — micro and macro.</p>
+    <p><strong>Set the through-line:</strong> Both cases are about the same fundamental question: how do humans give AI systems the right signal?</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">What I'll cover</div>
+      <h2>Two case studies, one through-line.</h2>
+      <div class="comp-row">
+        <div class="comp-card accent">
+          <span class="tag accent">Case 01 · ~8 min</span>
+          <h4>Product Value Expression</h4>
+          <p>Teaching an AI ad system to listen — redesigning how advertisers tell our delivery model what they value most.</p>
+        </div>
+        <div class="comp-card accent">
+          <span class="tag accent">Case 02 · ~7 min</span>
+          <h4>Unifying Product Set Intelligence</h4>
+          <p>Two overlapping products, one UI, no path to launch — a strategic design call that consolidated three roadmaps.</p>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:20px;">Both cases sit on the same edge: <strong>how do humans give AI systems the right signal?</strong></p>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- CASE 1: PVE -->
+  <!-- ============================================== -->
+
+  <!-- Slide 4 — PVE section title -->
+  <section class="slide section-title" data-notes="
+    <p>Transition slide. Pause for a beat after it appears. Land the title.</p>
+    <p><strong>Verbal hook:</strong> &quot;Let's start with Product Value Expression — or PVE.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">Case Study 01</div>
+      <h1>Product Value Expression</h1>
+      <p class="lead" style="margin-top:24px;">Teaching an AI ad system to listen.</p>
+    </div>
+  </section>
+
+  <!-- Slide 5 — The tension -->
+  <section class="slide big" data-notes="
+    <p><strong>The framing slide.</strong> The whole case study hangs off the mismatch this slide names.</p>
+    <p><strong>Say it out loud:</strong> Meta's AI delivery system optimizes for two things — conversions or revenue. Most advertisers are fine with that. Sophisticated ecomm brands aren't. They measure success at the product level: margin, inventory, seasonal lift. The system couldn't hear them. So they hacked around it.</p>
+    <p><strong>Land the cost:</strong> Every workaround is a tax — on the advertiser and on the model's ability to learn.</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">01 · The Tension</div>
+      <h2>The advertiser and the AI were optimizing for different things.</h2>
+      <p class="lead">AI ad delivery learns from outcomes — it's trained to maximize conversions or revenue. That works for most advertisers. It broke down for the largest ecommerce brands, who measure success at the <strong>product level</strong>: margin, inventory turn, seasonal lift, new-product traction.</p>
+      <p class="lead">The model had no way to learn those signals. So advertisers built workarounds — splitting catalogs into dozens of narrow sets, running parallel campaigns just to push specific SKUs.</p>
+    </div>
+  </section>
+
+  <!-- Slide 6 — The quote -->
+  <section class="slide" data-notes="
+    <p>Let the quote do the work. Read it slowly. Pause after.</p>
+    <p><strong>Optional verbal:</strong> &quot;This is from one of our largest fashion advertisers. The phrase 'fighting the system' is the entire problem in three words.&quot;</p>
+  ">
+    <div class="slide-inner" style="justify-content:center;">
+      <div class="quote">
+        &ldquo;I want to bid more on high-margin, seasonal products like prom dresses — and bid less on the low performers. Right now there's no way to do that without fighting the system.&rdquo;
+        <span class="attribution">— Senior performance marketer, fashion DTC</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7 — The prior attempt (PDP) -->
+  <section class="slide top" data-notes="
+    <p><strong>Why this slide matters:</strong> Sets up that this isn't a greenfield project. Someone already tried. That failure is your inheritance — and your unfair advantage if you read it right.</p>
+    <p><strong>Talk track:</strong> A year before I picked this up, the team shipped an MVP called PDP. Advertisers could assign a number between 0.7 and 1.3 to individual products. The system would adjust delivery. It worked. And it didn't.</p>
+    <p><strong>Set up the next slide:</strong> Three numbers tell the story.</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">02 · The Prior Attempt</div>
+      <h2>The first version proved the demand — and exposed the wrong design.</h2>
+      <p class="lead">A year before I picked this up, the team shipped <strong>PDP</strong> — Product Delivery Preference. Advertisers assigned a 0.7–1.3 multiplier to individual products. The model adjusted delivery accordingly. It worked. And it didn't.</p>
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Validated demand</div>
+          <div class="stat-num">$Bs</div>
+          <div class="stat-desc">in revenue running through PDP, even with fewer than 20 advertisers on it. The need was unambiguous.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Adoption friction</div>
+          <div class="stat-num">67%</div>
+          <div class="stat-desc">of PDP advertisers set up campaigns in one tool — but the feature lived in another.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Trust gap</div>
+          <div class="stat-num">0</div>
+          <div class="stat-desc">reporting on what the multipliers actually did. Setup in the dark. No feedback loop.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8 — What setup actually looked like (videos) -->
+  <section class="slide top" data-notes="
+    <p><strong>Show, don't tell — but the annotations carry the story.</strong> Let the videos auto-play and walk through the numbered steps.</p>
+    <p><strong>Talk track:</strong> &quot;Setup required two disconnected steps across two different tools. On the left, you encoded value into the catalog — three clicks just to find where value lives, then one numeric slot per SKU with no semantic label. On the right, you jumped to the campaign tool and picked from a dropdown of five identically-named priority slots. You had to remember which slot you'd used in step one — for which intent. Cross-tool memory tax, every time.&quot;</p>
+    <p><strong>Pull quote if there's time:</strong> &quot;These multipliers feel arbitrary. I don't know if 1.2 means twice as important, or 20% more important.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">02 · The Prior Attempt</div>
+      <h3 style="margin-top:0; margin-bottom:28px;">Two disconnected steps. No semantic meaning. No way to know if it worked.</h3>
+      <div class="annotated-pair">
+        <!-- Step 1 -->
+        <div class="annotated-col">
+          <div class="annotated-header">
+            <div class="step-badge">01</div>
+            <div class="step-title">
+              Encode value into the catalog
+              <span class="where">Catalog tool · 3 clicks deep · per SKU</span>
+            </div>
+          </div>
+          <div class="media-frame">
+            <video src="https://d2xsxph8kpxj0f.cloudfront.net/310519663426370869/2MqYuzQyNcg4SjtnVVBtXx/pve_figma_pdp_setup_flow_4bdfc12c.mp4" autoplay loop muted playsinline></video>
+          </div>
+          <ul class="annotation-list">
+            <li><strong>3 clicks deep</strong> to find where value lives</li>
+            <li><strong>5 identically-named slots</strong> — no labels, no meaning</li>
+            <li>Repeat for every SKU, every season</li>
+          </ul>
+        </div>
+        <!-- Step 2 -->
+        <div class="annotated-col">
+          <div class="annotated-header">
+            <div class="step-badge">02</div>
+            <div class="step-title">
+              Pick which slot to invoke
+              <span class="where">Campaign tool · dropdown of 5 · from memory</span>
+            </div>
+          </div>
+          <div class="media-frame">
+            <video src="https://d2xsxph8kpxj0f.cloudfront.net/310519663426370869/2MqYuzQyNcg4SjtnVVBtXx/pve_figma_pdp_ads_manager_flow_53148a20.mp4" autoplay loop muted playsinline></video>
+          </div>
+          <ul class="annotation-list">
+            <li>Dropdown shows the <strong>same 5 identical names</strong></li>
+            <li>Must <strong>remember</strong> which slot from Step 1</li>
+            <li><strong>Cross-tool memory tax</strong>, every campaign</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9 — The reframe (capability vs packaging) -->
+  <section class="slide" data-notes="
+    <p><strong>This is the load-bearing slide of the whole case.</strong> Take a beat on it.</p>
+    <p><strong>The move:</strong> Most teams would call PDP a failure and start over. I argued the opposite — the backend worked. The packaging was the problem. That distinction is what made everything that came next possible — including reusing the entire ranking infrastructure.</p>
+    <p><strong>Generalizable lesson:</strong> When something looks like a failure, ask which part actually failed. The right answer is almost always &quot;evolve the interface, preserve the engine.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">02 · The Prior Attempt</div>
+      <h2>What was broken — and what wasn't.</h2>
+      <div class="comp-row three">
+        <div class="comp-card red">
+          <span class="tag red">✕ Broken</span>
+          <h4>The packaging</h4>
+          <p>Per-SKU multipliers across thousands of products. Wrong tool. No semantic meaning. No reporting.</p>
+        </div>
+        <div class="comp-card green">
+          <span class="tag green">✓ Sound</span>
+          <h4>The capability</h4>
+          <p>Ranking infrastructure worked. Signal was being read. Delivery was responding. The system could already do the thing.</p>
+        </div>
+        <div class="comp-card accent">
+          <span class="tag accent">→ The reframe</span>
+          <h4>Evolve the interface,<br>preserve the engine.</h4>
+          <p>That single distinction shaped every decision that followed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10 — Discovery -->
+  <section class="slide top" data-notes="
+    <p><strong>Pivot to research.</strong> Now you've earned the right to talk about what you did.</p>
+    <p><strong>Talk track:</strong> &quot;Working with research and PM, we ran a 4-week discovery sprint across 24 advertisers spanning DTC, automotive, marketplace, and travel — a mix of existing PDP customers and prospective ones. We did 1:1 interviews plus diary studies of their current workarounds. The brief was deceptively simple: when you say you want to 'boost a product,' what do you actually mean? Four use cases emerged. The frequency was the surprise — 22 out of 24 advertisers wanted to push their own first-party signals into our delivery system. That single finding rewrote the design brief.&quot;</p>
+    <p><strong>What to emphasize visually:</strong> Point at the methodology strip first — grounds the sample. Then walk the 4 cards left-to-right.</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">03 · Discovery</div>
+      <h2>24 advertisers. 4 use cases. One pattern nobody had named.</h2>
+      <p class="discovery-intro">A 4-week sprint with research and PM. The brief was deceptively simple: <strong>when you say you want to &ldquo;boost a product,&rdquo; what do you actually mean?</strong> Four use cases emerged — but the frequency was the real signal.</p>
+      <div class="uc-grid compact">
+        <div class="uc-card priority">
+          <div class="uc-stat">22<span class="uc-denom">/24</span></div>
+          <h4>Promote &amp; suppress by first-party signals</h4>
+          <p>&quot;Align delivery with our internal margin, stock, return-rate data. We know what's working. We just can't tell you.&quot;</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-stat">20<span class="uc-denom">/24</span></div>
+          <h4>Give new products a fair shot</h4>
+          <p>Push products with no conversion signal yet. Advertisers will trade short-term ROAS to let new SKUs warm up.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-stat">17<span class="uc-denom">/24</span></div>
+          <h4>Time-sensitive promotion</h4>
+          <p>Travel, ticketing, entertainment — delivery needs to respond to price changes faster than the model's normal lag.</p>
+        </div>
+        <div class="uc-card">
+          <div class="uc-stat">9<span class="uc-denom">/24</span></div>
+          <h4>Match products to specific users</h4>
+          <p>Marketplaces want per-user product matching. Backend-layer problem — parked for a later phase.</p>
+        </div>
+      </div>
+      <div class="method-strip">
+        <div class="method-item">
+          <div class="label">Sample</div>
+          <div class="value">24 advertisers · mix of PDP customers + prospects</div>
+        </div>
+        <div class="method-item">
+          <div class="label">Verticals</div>
+          <div class="value">DTC · Automotive · Marketplace · Travel</div>
+        </div>
+        <div class="method-item">
+          <div class="label">Method</div>
+          <div class="value">1:1 interviews + workaround diary studies</div>
+        </div>
+        <div class="method-item">
+          <div class="label">Partners</div>
+          <div class="value">UX Research · PM · Data Science</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11 — The insight -->
+  <section class="slide" data-notes="
+    <p><strong>This is the money slide.</strong> If they remember one thing from PVE, make it this.</p>
+    <p><strong>Talk track:</strong> &quot;Across every use case, advertisers weren't trying to set a number. They were trying to express WHY something matters. The multiplier was a translation layer they hated, applied to a question they could already answer. The job of the design wasn't to make the multiplier easier. It was to let advertisers express intent in their own language, and let the model handle the translation.&quot;</p>
+    <p><strong>End with:</strong> A multiplier is what you give a system you don't trust. A rule is what you give a system you do.</p>
+  ">
+    <div class="slide-inner" style="justify-content:center; max-width:1100px;">
+      <div class="eyebrow">04 · The Insight</div>
+      <h2 style="font-size:44px; line-height:1.25; letter-spacing:-0.6px; font-weight:500; color:var(--text-dim); max-width:980px; margin:0;">
+        Advertisers weren't trying to <span style="color:var(--text); text-decoration:line-through; text-decoration-color:var(--red); text-decoration-thickness:2px;">set a number</span>.<br>
+        They were trying to <span style="color:var(--text);">express why something matters</span>.
+      </h2>
+      <div class="quote" style="margin-top:72px; font-size:26px; padding:16px 0 16px 24px; max-width:880px; color:var(--text-dim); font-weight:400; border-left-width:3px;">
+        &ldquo;A <span style="color:var(--text);">multiplier</span> is what you give a system you <span style="color:var(--text);">don't trust</span>.<br>
+        A <span style="color:var(--accent);">rule</span> is what you give a system you <span style="color:var(--accent);">do</span>.&rdquo;
+        <span class="attribution" style="margin-top:18px; font-size:13px;">— Personal note, mid-project</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12 — The design thesis -->
+  <section class="slide top" data-notes="
+    <p><strong>Now show the design thesis as a single sentence.</strong> The reviewer should be able to repeat it after this slide.</p>
+    <p><strong>Talk through the three bullets:</strong> Each one is a translation move from how the system used to think to how the human actually thinks.</p>
+  ">
+    <div class="slide-inner" style="justify-content:center; max-width:1100px;">
+      <div class="eyebrow">04 · The Insight</div>
+      <p style="font-size:18px; color:var(--text-dim); margin:0 0 18px; max-width:none;">The design thesis became a single sentence:</p>
+      <div class="quote" style="margin:0 0 64px; font-size:38px; line-height:1.3; padding:18px 0 18px 28px; max-width:1000px; font-weight:500; letter-spacing:-0.4px;">
+        &ldquo;I value <span style="color:var(--accent);">these products</span> <span style="color:var(--accent);">X% more</span> than the rest of my catalog.&rdquo;
+      </div>
+      <p style="font-size:16px; color:var(--text-dim); margin-bottom:24px; max-width:none;">That sentence does three things at once — each one makes the human's signal easier for an AI system to act on:</p>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:32px;">
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--accent); font-weight:700; margin-bottom:10px;">01</div>
+          <h4 style="font-size:18px; font-weight:600; line-height:1.3; margin-bottom:8px;">Relative, not arbitrary.</h4>
+          <p style="font-size:14px; color:var(--text-dim); line-height:1.55; margin:0; max-width:none;">&ldquo;20% more&rdquo; beats &ldquo;1.2&rdquo; — same math, infinitely more meaning.</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--accent); font-weight:700; margin-bottom:10px;">02</div>
+          <h4 style="font-size:18px; font-weight:600; line-height:1.3; margin-bottom:8px;">By attribute, not by SKU.</h4>
+          <p style="font-size:14px; color:var(--text-dim); line-height:1.55; margin:0; max-width:none;">&ldquo;Boost women's outerwear&rdquo; instead of tagging 400 products one at a time.</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--accent); font-weight:700; margin-bottom:10px;">03</div>
+          <h4 style="font-size:18px; font-weight:600; line-height:1.3; margin-bottom:8px;">The advertiser's vocabulary.</h4>
+          <p style="font-size:14px; color:var(--text-dim); line-height:1.55; margin:0; max-width:none;">Brand, category, stock level — not the model's number space.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13 — Design solution (live prototype) -->
+  <section class="slide top" data-notes="
+    <p><strong>This is your big visual moment.</strong> Open the prototype in a new tab using the button — demo it full-screen, then come back to the deck. The embedded preview is a teaser, not the demo surface.</p>
+    <p><strong>What to demo (60 seconds max) in the full-screen tab:</strong></p>
+    <p>1. Toggle between Product / Audience rule types — same paradigm, both dimensions.<br>2. Click &ldquo;Select criteria&rdquo; — show the dimension picker (first-party signals + catalog attributes).<br>3. Pick &ldquo;Brand,&rdquo; multi-select 2–3 brands.<br>4. Hit Next → show the summary view (where setup speaks back in the advertiser's vocabulary).</p>
+    <p><strong>Land the point:</strong> &quot;The summary reads like a sentence. Setup and outcome share the same vocabulary — that's the whole game.&quot;</p>
+  ">
+    <div class="slide-inner" style="min-height:0;">
+      <div class="eyebrow">05 · The Design</div>
+      <h3 style="margin-top:0; margin-bottom:8px;">One surface. The advertiser's vocabulary. The model's intelligence.</h3>
+      <p style="font-size:16px; color:var(--text-dim); margin:0 0 20px; max-width:none;">Live prototype — best demoed full-screen.</p>
+
+      <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:24px; flex:1; min-height:0; align-items:stretch;">
+        <!-- Embedded preview -->
+        <div style="position:relative; background:#ffffff; border-radius:14px; overflow:hidden; min-height:0;">
+          <iframe src="pve-prototype.html" title="PVE interactive prototype — preview" style="display:block; width:100%; height:100%; border:0; pointer-events:none; transform:scale(0.7); transform-origin:top left; width:142.85%; height:142.85%;"></iframe>
+          <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 60%, rgba(44,44,44,0.3) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; bottom:14px; left:14px; font-size:11px; color:#fff; background:rgba(44,44,44,0.7); padding:6px 12px; border-radius:100px; letter-spacing:0.5px; text-transform:uppercase; font-weight:600;">Preview · click button to demo</div>
+        </div>
+
+        <!-- Right rail: CTA + demo cues -->
+        <div style="display:flex; flex-direction:column; gap:18px; justify-content:center;">
+          <a href="pve-prototype.html" target="_blank" rel="noopener" style="display:block; background:var(--accent); color:#fff; text-decoration:none; padding:22px 26px; border-radius:12px; font-weight:600; font-size:20px; letter-spacing:-0.3px; transition:transform 0.15s, background 0.15s;" onmouseover="this.style.background='#c43015';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--accent)';this.style.transform='translateY(0)'">
+            ↗ Open prototype in new tab
+            <div style="font-size:13px; font-weight:400; opacity:0.85; margin-top:6px; letter-spacing:0;">Full-screen demo · fully interactive</div>
+          </a>
+
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 22px;">
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:12px;">Demo path</div>
+            <ol style="list-style:none; margin:0; padding:0; counter-reset:dm;">
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; margin-bottom:10px; padding-left:24px; position:relative; counter-increment:dm;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span> Toggle <strong style="color:var(--text);">Product</strong> ↔ <strong style="color:var(--text);">Audience</strong> — same paradigm</li>
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; margin-bottom:10px; padding-left:24px; position:relative;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span> Click <strong style="color:var(--text);">Select criteria</strong> — pick a dimension</li>
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; margin-bottom:10px; padding-left:24px; position:relative;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</span> Multi-select brands, set bid, name the rule</li>
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; padding-left:24px; position:relative;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">4</span> Hit <strong style="color:var(--text);">Next</strong> → summary speaks back</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14 — Closing the loop -->
+  <section class="slide top" data-notes="
+    <p><strong>Talk track:</strong> &quot;Expression is only half the story. If the system doesn't show advertisers what their rules DID, every rule is a black box and trust never compounds. The reporting layer is what turns a setup into a relationship.&quot;</p>
+    <p><strong>Walk the two callouts:</strong></p>
+    <p>1. Point at the &lsquo;Product preferences&rsquo; column in the table — those are the exact rule names the advertiser typed during setup (&lsquo;10k+ inventory,&rsquo; &lsquo;Red shoes&rsquo;). Setup and outcome share the same vocabulary.</p>
+    <p>2. Point at the right-rail breakdown picker — Category, Inventory, Priority. The same dimensions they picked in the rule builder are now first-class reporting cuts.</p>
+    <p><strong>Punchline:</strong> The rule isn't just a setting — it's the unit of analysis.</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">06 · Closing the Loop</div>
+      <h2>Rules without reporting are just hopes.</h2>
+      <p class="lead">The reporting layer is what turns a setup into a relationship — and what gives the model permission to keep optimizing.</p>
+      <div class="report-stage">
+        <div class="report-frame">
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663426370869/2MqYuzQyNcg4SjtnVVBtXx/pve_reporting_breakdowns_89890b98.png" alt="Per-rule reporting breakdown">
+        </div>
+        <div class="report-callouts">
+          <div class="report-callout">
+            <div class="callout-label">← Setup speaks back</div>
+            <div class="callout-text">The same rule names the advertiser typed appear as their own rows.<em>&ldquo;10k+ inventory,&rdquo; &ldquo;Red shoes&rdquo;</em></div>
+          </div>
+          <div class="report-callout">
+            <div class="callout-label">→ Same dimensions, new job</div>
+            <div class="callout-text">Rule-builder dimensions become first-class reporting cuts.<em>Category · Inventory · Priority</em></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 15 — PVE Impact -->
+  <section class="slide top" data-notes="
+    <p><strong>The impact slide.</strong> PVE is still in alpha, so be honest about what's measured vs. forecasted. Lead with the backend signal (real, measured) and frame the rest as supporting evidence.</p>
+    <p><strong>Talk track:</strong> &quot;PVE is mid-alpha as of today, so I want to be careful with what I call impact. The strongest measured signal is from a precursor backend test in a single market — same ranking lineage as PVE — which showed roughly 50% lift in return on ad spend and 37% reduction in cost per acquisition. Demand was already validated: billions in revenue running through PDP with fewer than 20 advertisers. The discovery work landed 22 out of 24 advertisers on the reframe — the highest-confidence finding I've ever shipped against. And the strategy doc that came out of this is now the alignment artifact for the broader CAG track.&quot;</p>
+    <p><strong>Don't oversell.</strong> Reviewers respect honesty about stage more than they respect inflated numbers.</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">07 · Impact</div>
+      <h2>Early signal is strong — the bet is sized.</h2>
+      <div class="impact-grid">
+        <div class="impact-hero">
+          <div class="impact-hero-label">Measured · Backend test, single market</div>
+          <div class="impact-hero-nums">
+            <div class="num-pair">
+              <div class="num green">+50%</div>
+              <div class="label">iROAS</div>
+            </div>
+            <div class="num-pair">
+              <div class="num red">−37%</div>
+              <div class="label">iCPA</div>
+            </div>
+          </div>
+          <p class="desc">A precursor backend test using the same ranking lineage as PVE produced substantial efficiency lift in both directions, with the expected impression shift toward prioritized products. Alpha is now testing whether the new rule-based UX feeds the model equally clean inputs.</p>
+        </div>
+        <div class="impact-side">
+          <div class="impact-side-card">
+            <div class="ic-label">Validated demand</div>
+            <div class="ic-num">$Bs</div>
+            <p class="ic-desc">in ad revenue running through PDP with fewer than 20 advertisers — demand was unambiguous.</p>
+          </div>
+          <div class="impact-side-card">
+            <div class="ic-label">Discovery validation</div>
+            <div class="ic-num">22<span style="font-size:22px; color:var(--text-dim);">/24</span></div>
+            <p class="ic-desc">advertisers confirmed the reframe in research — highest-confidence finding I've shipped against.</p>
+          </div>
+          <div class="impact-side-card">
+            <div class="ic-label">Strategic leverage</div>
+            <div class="ic-num">1 doc</div>
+            <p class="ic-desc">Smart Liquidity Design POV — the framework that aligned design, PM, and engineering across three adjacent product families.</p>
+          </div>
+        </div>
+      </div>
+      <p class="impact-disclaimer">PVE is mid-alpha. The 50% / −37% figures come from a precursor backend test using the same ranking model. Alpha is now testing the rule-based UX feeding the same model. Full impact metrics come post-GA.</p>
+    </div>
+  </section>
+
+  <!-- Slide 16 — PVE reflection -->
+  <section class="slide top" data-notes="
+    <p><strong>Three takeaways from PVE.</strong> These are the lessons you carry into every other AI surface you design now. Make sure they're transferable — frame them so a designer working on a different AI product can use them.</p>
+    <p><strong>Bridge:</strong> &quot;These three lessons set up the second case study, which is about applying the strategy lens at a larger scale.&quot;</p>
+  ">
+    <div class="slide-inner" style="justify-content:center; max-width:1100px;">
+      <div class="eyebrow">PVE · Reflection</div>
+      <h2 style="margin-bottom:64px;">What PVE taught me about designing for AI.</h2>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:48px;">
+        <div>
+          <div style="font-size:13px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:18px;">01</div>
+          <h4 style="font-size:24px; font-weight:600; line-height:1.25; margin-bottom:16px; letter-spacing:-0.3px;">If the user is doing the model's <span style="color:var(--accent);">translation work</span>, the surface is wrong.</h4>
+          <p style="font-size:15px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">Translate intent into instruction so the human never has to.</p>
+        </div>
+        <div>
+          <div style="font-size:13px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:18px;">02</div>
+          <h4 style="font-size:24px; font-weight:600; line-height:1.25; margin-bottom:16px; letter-spacing:-0.3px;">Evolve the interface. <span style="color:var(--accent);">Preserve the engine.</span></h4>
+          <p style="font-size:15px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">PDP &quot;failed.&quot; The backend it shipped became PVE's foundation.</p>
+        </div>
+        <div>
+          <div style="font-size:13px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:18px;">03</div>
+          <h4 style="font-size:24px; font-weight:600; line-height:1.25; margin-bottom:16px; letter-spacing:-0.3px;">Sometimes <span style="color:var(--accent);">the strategy doc</span> is the deliverable.</h4>
+          <p style="font-size:15px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">The most leveraged thing I shipped wasn't a screen — it was the framework. The frame is the design.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- CASE 2: LIQUIDITY -->
+  <!-- ============================================== -->
+
+  <!-- Slide 17 — Case 2 section title -->
+  <section class="slide section-title" data-notes="
+    <p>Transition. Reset the room.</p>
+    <p><strong>Verbal:</strong> &quot;If PVE is about depth on one feature, the next case is about breadth across three. Same fundamental question — how do humans give AI the right signal — but the answer required a strategic call, not just a design.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">Case Study 02</div>
+      <h1>Unifying Product Set Intelligence</h1>
+      <p class="lead" style="margin-top:24px;">When the design problem is really a strategy problem.</p>
+    </div>
+  </section>
+
+  <!-- Slide 18 — The problem -->
+  <section class="slide big" data-notes="
+    <p><strong>Set the situation crisply.</strong> Two teams, two products, building toward the same advertiser surface — with conflicting models. Neither could launch.</p>
+    <p><strong>Talk track:</strong> &quot;I inherited a situation where two product teams were both building on the same ad-set screen, doing functionally overlapping things, with conflicting mental models. Neither had a clear path to launch. The problem was getting framed as &lsquo;help us reconcile the UI.&rsquo; The actual problem was deeper.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">01 · The Situation</div>
+      <h2>Two products. One UI.<br>Zero path to launch.</h2>
+      <p class="lead">Two parallel teams were both building toward the same advertiser surface — with conflicting models, overlapping value props, and a UI fight blocking both from shipping. <strong>Neither team could ship until someone designed the unified experience. That was my job.</strong></p>
+    </div>
+  </section>
+
+  <!-- Slide 19 — The two products -->
+  <section class="slide top" data-notes="
+    <p><strong>Briefly name the two products.</strong> Don't get lost in the details — the audience doesn't need to know what PSF and PSE are specifically.</p>
+    <p><strong>Talk track:</strong> &quot;PSF was about letting Meta's AI broaden product selection beyond what the advertiser specified. PSE was about doing something similar, but with a different mental model and a different control surface. From the user's perspective, both were answering the same question — 'how do I let the system pick products for me?' But neither could explain why an advertiser should care about one over the other.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">01 · The Situation</div>
+      <h2 style="margin-bottom:18px;">Two products, one surface, no shared story.</h2>
+      <p class="lead" style="margin-bottom:0; font-size:22px;">From the advertiser's perspective, both were answering the same question — &quot;<strong>how do I let the system pick products for me?</strong>&quot; — with two incompatible answers. <span style="color:var(--text-dimmer); font-size:18px;">(A third workstream was adding yet another checkbox to the same surface.)</span></p>
+      <div class="product-compare">
+        <div class="product-card">
+          <div class="pc-image">
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663426370869/2MqYuzQyNcg4SjtnVVBtXx/psf_full_shell_42dc4e3a.png" alt="PSF — 'Show all products' with optional product set suggestion (Knitwear)">
+          </div>
+          <div class="pc-body">
+            <div class="pc-tag">Product A · In beta · ready to launch</div>
+            <div class="pc-title">The Recommender (PSF)</div>
+            <p class="pc-desc">Starts with the <strong>entire catalog</strong>. Advertiser <em>suggests</em> a smaller set as a hint; the system expands beyond it for better performance. <strong>Mechanic: small → big, performance-led.</strong></p>
+          </div>
+        </div>
+        <div class="product-card">
+          <div class="pc-image">
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663426370869/2MqYuzQyNcg4SjtnVVBtXx/pse_full_shell_b57bcbdf.png" alt="PSE — product set + 'Include other products' checkbox with performance callout">
+          </div>
+          <div class="pc-body">
+            <div class="pc-tag">Product B · In beta · also ready to launch</div>
+            <div class="pc-title">The Classifier (PSE)</div>
+            <p class="pc-desc">Starts <strong>constrained</strong> to a chosen set. The system <em>expands</em> to relevant products via an LLM classifier. <strong>Mechanic: big → small → broadened, relevance-led.</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stakes panel: For business / For advertisers -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:36px;">
+        <div style="border-left:3px solid var(--red); padding:14px 20px;">
+          <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--red); font-weight:700; margin-bottom:10px;">For the business</div>
+          <ul style="list-style:none; margin:0; padding:0;">
+            <li style="font-size:14px; color:var(--text-dim); padding-left:14px; position:relative; margin-bottom:4px;"><span style="position:absolute; left:0; color:var(--red);">•</span> Two teams investing in overlapping solutions</li>
+            <li style="font-size:14px; color:var(--text-dim); padding-left:14px; position:relative; margin-bottom:4px;"><span style="position:absolute; left:0; color:var(--red);">•</span> Conflicting roadmaps, no shared framework</li>
+            <li style="font-size:14px; color:var(--text-dim); padding-left:14px; position:relative;"><span style="position:absolute; left:0; color:var(--red);">•</span> <strong style="color:var(--text);">Both products stuck in beta, blocked by UI conflict</strong></li>
+          </ul>
+        </div>
+        <div style="border-left:3px solid var(--amber); padding:14px 20px;">
+          <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--amber); font-weight:700; margin-bottom:10px;">For advertisers</div>
+          <ul style="list-style:none; margin:0; padding:0;">
+            <li style="font-size:14px; color:var(--text-dim); padding-left:14px; position:relative; margin-bottom:4px;"><span style="position:absolute; left:0; color:var(--amber);">•</span> Inconsistent patterns depending on product-set choice</li>
+            <li style="font-size:14px; color:var(--text-dim); padding-left:14px; position:relative; margin-bottom:4px;"><span style="position:absolute; left:0; color:var(--amber);">•</span> No explanation of what the platform does with their products</li>
+            <li style="font-size:14px; color:var(--text-dim); padding-left:14px; position:relative;"><span style="position:absolute; left:0; color:var(--amber);">•</span> <strong style="color:var(--text);">Opt-in model — 1+ year of data showed low adoption</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 20 — The reframe -->
+  <section class="slide big" data-notes="
+    <p><strong>The strategic reframe.</strong> This is the equivalent of the &quot;capability vs. packaging&quot; moment in PVE — the unlock that made the rest possible.</p>
+    <p><strong>Talk track:</strong> &quot;The UI fight was a symptom. The real problem was that neither team could articulate why an advertiser should pick their product over the other. The UX problem was really a value prop problem.&quot;</p>
+    <p><strong>Set up the next slide:</strong> &quot;To fix it, I had to map the actual problem space — not just the products.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">02 · The Reframe</div>
+      <h2>The UX problem was really a value prop problem.</h2>
+      <p class="lead">Two teams reconciling a UI couldn't solve it, because the conflict wasn't in the surface — it was in the strategy. Neither team could finish the sentence &quot;an advertiser should pick this product when ___.&quot; So I stopped trying to solve the UI and started trying to map the actual problem space.</p>
+    </div>
+  </section>
+
+  <!-- Slide 21 — Discovery insights -->
+  <section class="slide top" data-notes="
+    <p><strong>This is the research evidence behind the reframe.</strong> Three findings that broke the deadlock.</p>
+    <p><strong>Talk track:</strong> &quot;The reframe was a hypothesis. The research backed it up. Three findings broke the deadlock. One: from the advertiser's perspective, both products were experientially identical — same picks, same expansion, same goal. The only difference was algorithmic, and no advertiser wakes up thinking in algorithms. Two: research showed advertisers feared the word 'expansion' because it meant 'losing control' — nobody had told them the AI could stay relevant to their creative. Three: a year of opt-in data showed only sophisticated advertisers turned expansion on. The default was the wrong lever.&quot;</p>
+    <p><strong>End with the quote:</strong> Let it sit. That's the line that became the design thesis for the whole program.</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">03 · Discovery</div>
+      <h2>Three findings that broke the deadlock.</h2>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:32px 0 36px;">
+        <div style="padding:0;">
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--accent); font-weight:700; margin-bottom:10px;">01 · The core insight</div>
+          <h4 style="font-size:20px; font-weight:600; margin-bottom:10px; line-height:1.3;">Experientially identical, algorithmically different.</h4>
+          <p style="font-size:14px; color:var(--text-dim); line-height:1.55; margin:0; max-width:none;">From the advertiser's perspective, both products did the same thing: <strong style="color:var(--text);">pick a set → platform expands → better performance</strong>. The only difference was <em>how</em> the expansion happened — and that's an engineering distinction, not a user one.</p>
+        </div>
+        <div style="padding:0;">
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--amber); font-weight:700; margin-bottom:10px;">02 · The trust gap</div>
+          <h4 style="font-size:20px; font-weight:600; margin-bottom:10px; line-height:1.3;">Advertisers feared the word &ldquo;expansion.&rdquo;</h4>
+          <p style="font-size:14px; color:var(--text-dim); line-height:1.55; margin:0; max-width:none;">UXR found advertisers associated expansion with <strong style="color:var(--text);">losing control</strong>. They didn't know the AI could stay semantically relevant to their creative — because the UI never told them. The opacity was the problem, not the AI.</p>
+        </div>
+        <div style="padding:0;">
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--red); font-weight:700; margin-bottom:10px;">03 · The adoption paradox</div>
+          <h4 style="font-size:20px; font-weight:600; margin-bottom:10px; line-height:1.3;">Opt-in selected for the wrong advertisers.</h4>
+          <p style="font-size:14px; color:var(--text-dim); line-height:1.55; margin:0; max-width:none;">A year of opt-in data showed <strong style="color:var(--text);">only the most sophisticated advertisers</strong> enabled expansion. The ones who needed it most never found the toggle. The default was the wrong lever.</p>
+        </div>
+      </div>
+      <div class="quote" style="font-size:30px; padding:24px 0 24px 28px;">
+        &ldquo;Show my products, and if you can do better, go ahead — just don't make it weird.&rdquo;
+        <span class="attribution">— What almost every advertiser actually wants · the line that became the design thesis</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 22 — The liquidity spectrum -->
+  <section class="slide top" data-notes="
+    <p><strong>This is your strategic deliverable.</strong> The liquidity spectrum became the shared map the entire org aligned around.</p>
+    <p><strong>Talk track:</strong> &quot;Through that evaluation I discovered product set expansion wasn't binary — it was a spectrum of advertiser control vs. platform flexibility. Four distinct modes, each mapping to a different advertiser need. PSF mapped to Mode 2. PSE mapped to Mode 3. Once we had the spectrum, the products stopped fighting — because each one mapped to a different point on it.&quot;</p>
+  ">
+    <div class="slide-inner" style="justify-content:center; max-width:1100px;">
+      <div class="eyebrow">04 · The Insight</div>
+      <h2 style="margin-bottom:24px;">One spectrum. Four modes.</h2>
+      <p class="lead" style="margin-bottom:48px;">How much control do you want vs. how much flexibility do you give the platform?</p>
+
+      <!-- Spectrum bar -->
+      <div style="display:flex; align-items:center; gap:0; margin-bottom:14px;">
+        <div style="flex:1; height:6px; background:var(--green); border-radius:3px 0 0 3px;"></div>
+        <div style="flex:1; height:6px; background:var(--accent);"></div>
+        <div style="flex:1; height:6px; background:var(--purple);"></div>
+        <div style="flex:1; height:6px; background:var(--amber); border-radius:0 3px 3px 0;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:36px; letter-spacing:0.5px;">
+        <span>← More platform flexibility</span>
+        <span>More advertiser control →</span>
+      </div>
+
+      <!-- 4 modes — simplified to single rows -->
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px;">
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--green); font-weight:700; margin-bottom:8px;">MODE 1</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:6px;">Show all products</h4>
+          <p style="font-size:13px; color:var(--text-dim); margin:0; max-width:none;">Full Liquidity</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--accent); font-weight:700; margin-bottom:8px;">MODE 2 · fka PSF</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:6px;">Prioritize a set</h4>
+          <p style="font-size:13px; color:var(--text-dim); margin:0; max-width:none;">Your set + top performers from anywhere</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--purple); font-weight:700; margin-bottom:8px;">MODE 3 · fka PSE</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:6px;">Prioritize + related</h4>
+          <p style="font-size:13px; color:var(--text-dim); margin:0; max-width:none;">Your set + AI-matched relevant items</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--amber); font-weight:700; margin-bottom:8px;">MODE 4</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:6px;">Limit which products</h4>
+          <p style="font-size:13px; color:var(--text-dim); margin:0; max-width:none;">Only what you selected</p>
+        </div>
+      </div>
+
+      <p style="margin-top:48px; font-size:18px; color:var(--text-dim); text-align:center;">The conflict dissolved — they weren't competing, they were <strong style="color:var(--text);">neighbors on a spectrum nobody had drawn yet</strong>.</p>
+    </div>
+  </section>
+
+  <!-- Slide 23 — Shoe retailer test -->
+  <section class="slide top" data-notes="
+    <p><strong>The framework test:</strong> Take any abstract spectrum and run a single advertiser through it. If the recommendations are obvious, the spectrum is right.</p>
+    <p><strong>Talk track:</strong> &quot;The spectrum was useful internally, but I needed something that made the distinction visceral. So I built the Shoe Retailer Test. Take one advertiser — a shoe shop with 5,000 SKUs running a 'Summer Sandals' ad with 50 products — and run them through each mode. The recommendations were obvious. And different. This 10-second framework became the canonical explanation adopted across the entire program.&quot;</p>
+  ">
+    <div class="slide-inner" style="justify-content:center; max-width:1100px;">
+      <div class="eyebrow">05 · The Shoe Retailer Test</div>
+      <h2 style="margin-bottom:14px;">If a framework is right, one advertiser proves it.</h2>
+      <p style="font-size:16px; color:var(--text-dim); margin-bottom:48px; max-width:none;">A shoe retailer. 5,000-SKU catalog. &ldquo;Summer Sandals&rdquo; campaign with 50 products selected.</p>
+
+      <!-- 4 modes simplified into a clean grid -->
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:24px;">
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--green); font-weight:700; margin-bottom:10px;">MODE 1</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:8px; line-height:1.3;">Show all 5,000</h4>
+          <p style="font-size:14px; color:var(--text-dim); margin:0; max-width:none;">By predicted conversion. May surface winter boots.</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--accent); font-weight:700; margin-bottom:10px;">MODE 2</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:8px; line-height:1.3;">Boost 50 + high-performers</h4>
+          <p style="font-size:14px; color:var(--text-dim); margin:0; max-width:none;">Your set as the seed. Recommender pulls in whatever converts.</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--purple); font-weight:700; margin-bottom:10px;">MODE 3</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:8px; line-height:1.3;">Boost 50 + relevant items</h4>
+          <p style="font-size:14px; color:var(--text-dim); margin:0; max-width:none;">LLM reads creative. Adds espadrilles, not winter boots.</p>
+        </div>
+        <div>
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--amber); font-weight:700; margin-bottom:10px;">MODE 4</div>
+          <h4 style="font-size:18px; font-weight:600; margin-bottom:8px; line-height:1.3;">Only the 50 sandals</h4>
+          <p style="font-size:14px; color:var(--text-dim); margin:0; max-width:none;">No expansion. Upsell offers <strong style="color:var(--text);">11% lower CPR</strong> if they switch.</p>
+        </div>
+      </div>
+
+      <div class="quote" style="font-size:24px; margin-top:56px; padding:16px 0 16px 24px; max-width:900px;">
+        &ldquo;The difference isn't <em>how many</em> products get added — it's <em>which</em> ones, and <em>why</em>.&rdquo;
+        <span class="attribution">— The line that resolved the engineering debate</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 24 — Behavior visualization (radio widget) -->
+  <section class="slide top" data-notes="
+    <p><strong>The behavior visualization — the radio widget from section 5 of the case study.</strong> Shows what *happens to delivery* when you pick each option.</p>
+    <p><strong>Talk track:</strong> &quot;Before the production prototype, here's the conceptual visualization I built into the case study. Each radio reveals the value prop, a concrete example, and a chip array showing what ships in the ad. Option 1 expands aggressively (3 green '+' chips added). Option 2 expands relevantly (2 purple classifier chips added). Option 3 stays strict (5 chips, no expansion).&quot;</p>
+    <p><strong>Land:</strong> &quot;Three options. Three distinct delivery behaviors.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">06 · The Design · Behavior</div>
+      <h3 style="margin:0 0 8px;">Three options. Three distinct delivery behaviors.</h3>
+      <p style="font-size:16px; color:var(--text-dim); margin:0 0 20px; max-width:none;">Click an option to see what each one actually does in the ad.</p>
+      <div class="prototype-frame">
+        <iframe src="liquidity-radio.html" title="Behavior visualization"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 25 — Live prototype (the actual design) -->
+  <section class="slide top" data-notes="
+    <p><strong>The production prototype — open in a new tab to demo full-screen.</strong> The embedded preview is a teaser, not the demo surface.</p>
+    <p><strong>What to demo (60 seconds) in the full-screen tab:</strong></p>
+    <p>1. Click the <strong>Preferences</strong> dropdown — show all 3 options with the &ldquo;Recommended&rdquo; badge on Option 1<br>2. Click <strong>Suggest some products</strong> — the section reveals product set selection<br>3. Click <strong>Limit which products are shown</strong> — strict mode<br>4. Click back to Option 1 — default state</p>
+    <p><strong>Land:</strong> &quot;One familiar control. Three real behaviors. The advertiser sees what they're choosing before they commit — that's transparency.&quot;</p>
+  ">
+    <div class="slide-inner" style="min-height:0;">
+      <div class="eyebrow">06 · The Design · Prototype</div>
+      <h3 style="margin-top:0; margin-bottom:8px;">One dropdown. Three options. In production context.</h3>
+      <p style="font-size:16px; color:var(--text-dim); margin:0 0 20px; max-width:none;">Live prototype — best demoed full-screen.</p>
+
+      <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:24px; flex:1; min-height:0; align-items:stretch;">
+        <!-- Embedded preview -->
+        <div style="position:relative; background:#ffffff; border-radius:14px; overflow:hidden; min-height:0;">
+          <iframe src="prototype-preferences.html" title="Promoted Products prototype — preview" style="display:block; width:100%; height:100%; border:0; pointer-events:none; transform:scale(0.7); transform-origin:top left; width:142.85%; height:142.85%;"></iframe>
+          <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 60%, rgba(44,44,44,0.3) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; bottom:14px; left:14px; font-size:11px; color:#fff; background:rgba(44,44,44,0.7); padding:6px 12px; border-radius:100px; letter-spacing:0.5px; text-transform:uppercase; font-weight:600;">Preview · click button to demo</div>
+        </div>
+
+        <!-- Right rail: CTA + demo cues -->
+        <div style="display:flex; flex-direction:column; gap:18px; justify-content:center;">
+          <a href="prototype-preferences.html" target="_blank" rel="noopener" style="display:block; background:var(--accent); color:#fff; text-decoration:none; padding:22px 26px; border-radius:12px; font-weight:600; font-size:20px; letter-spacing:-0.3px; transition:transform 0.15s, background 0.15s;" onmouseover="this.style.background='#c43015';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--accent)';this.style.transform='translateY(0)'">
+            ↗ Open prototype in new tab
+            <div style="font-size:13px; font-weight:400; opacity:0.85; margin-top:6px; letter-spacing:0;">Full-screen demo · fully interactive</div>
+          </a>
+
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 22px;">
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:12px;">Demo path</div>
+            <ol style="list-style:none; margin:0; padding:0;">
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; margin-bottom:10px; padding-left:24px; position:relative;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</span> Click <strong style="color:var(--text);">Preferences</strong> — dropdown opens</li>
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; margin-bottom:10px; padding-left:24px; position:relative;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span> Pick <strong style="color:var(--text);">Suggest some products</strong></li>
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; margin-bottom:10px; padding-left:24px; position:relative;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</span> Pick <strong style="color:var(--text);">Limit which products</strong></li>
+              <li style="font-size:14px; color:var(--text-dim); line-height:1.5; padding-left:24px; position:relative;"><span style="position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:var(--accent-dim); color:var(--accent); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">4</span> Back to default — land the close</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 26 — Design decisions worth defending -->
+  <section class="slide top" data-notes="
+    <p><strong>The principle slide.</strong> After the live demo, this is where you anchor the choices behind it.</p>
+    <p><strong>Talk track:</strong> &quot;The prototype is one thing — here are the three decisions that made it shippable. Default to performance, but transparently. Preserve existing settings so nobody gets surprised. And honor explicit opt-outs forever, because trust requires respecting deliberate decisions.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">06 · The Design · Principles</div>
+      <h2 style="margin-bottom:36px;">Three design decisions worth defending.</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;">
+        <div style="padding:0;">
+          <div style="font-size:11px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:14px;">01</div>
+          <h4 style="font-size:22px; font-weight:600; line-height:1.25; margin-bottom:14px; letter-spacing:-0.3px;">Default to performance — transparently.</h4>
+          <p style="font-size:16px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">Shifted the adoption model from opt-in to opt-out. The dropdown makes the default <strong style="color:var(--text);">visible</strong>, so it feels informed, not imposed.</p>
+        </div>
+        <div style="padding:0;">
+          <div style="font-size:11px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:14px;">02</div>
+          <h4 style="font-size:22px; font-weight:600; line-height:1.25; margin-bottom:14px; letter-spacing:-0.3px;">Preserve existing settings.</h4>
+          <p style="font-size:16px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">No surprise changes to live campaigns. Migration logic maps each existing state to the nearest dropdown equivalent. <strong style="color:var(--text);">No one has to redo their setup.</strong></p>
+        </div>
+        <div style="padding:0;">
+          <div style="font-size:11px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:14px;">03</div>
+          <h4 style="font-size:22px; font-weight:600; line-height:1.25; margin-bottom:14px; letter-spacing:-0.3px;">Sticky opt-out.</h4>
+          <p style="font-size:16px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">An explicit &ldquo;No expansion&rdquo; choice persists even as defaults change. <strong style="color:var(--text);">Trust requires respecting deliberate decisions.</strong></p>
+        </div>
+      </div>
+      <p style="margin-top:48px; font-size:17px; color:var(--text-dim); font-style:italic;">Opt-in to opt-out changed the adoption trajectory more than any UI improvement could.</p>
+    </div>
+  </section>
+
+  <!-- Slide 27 — Pragmatic phasing -->
+  <section class="slide top" data-notes="
+    <p><strong>The launch was a phased rollout.</strong> The ideal-world 4-mode dropdown carried too much eng risk for a single launch.</p>
+    <p><strong>Talk track:</strong> &quot;A 4-mode dropdown is the destination. Getting there in one launch carried unbounded engineering risk — so I designed three steps. Each phase validates an assumption the next phase builds on. No phase introduces a pattern that has to be unlearned.&quot;</p>
+    <p><strong>Talk to the discipline:</strong> Forward-compatible UI is the design principle. Phase 1's checkbox evolves into Phase 2's selector, which collapses into the dropdown.</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">07 · What's Shipping</div>
+      <h2>Pragmatic phasing — three steps to the ideal world.</h2>
+      <p class="lead" style="margin-bottom:36px;">Each phase validates an assumption the next one builds on. <strong>Nothing has to be unlearned.</strong></p>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px;">
+        <div class="comp-card">
+          <span class="tag accent">Phase 1 · H1 2026</span>
+          <h4>Pre-checked checkbox</h4>
+          <p style="margin-bottom:14px;">Existing UI stays intact. Expansion ships as default-on opt-out.</p>
+          <p style="margin:0; font-size:13px; color:var(--text); border-top:1px solid var(--border); padding-top:14px;"><strong>Validates:</strong> Does expansion lift performance, and do advertisers uncheck it?</p>
+        </div>
+        <div class="comp-card">
+          <span class="tag accent">Phase 2 · H2 2026</span>
+          <h4>Preference selector</h4>
+          <p style="margin-bottom:14px;">&ldquo;What&rdquo; (product set) and &ldquo;how&rdquo; (expansion) become separate controls.</p>
+          <p style="margin:0; font-size:13px; color:var(--text); border-top:1px solid var(--border); padding-top:14px;"><strong>Validates:</strong> Do advertisers pick the right mode when given the choice?</p>
+        </div>
+        <div class="comp-card" style="border-color:rgba(34,197,94,0.5); background:var(--green-dim);">
+          <span class="tag" style="color:var(--green);">Ideal world</span>
+          <h4>Unified 4-mode dropdown</h4>
+          <p style="margin-bottom:14px;">One decision point. Four self-describing modes. Full progressive disclosure.</p>
+          <p style="margin:0; font-size:13px; color:var(--text); border-top:1px solid rgba(34,197,94,0.3); padding-top:14px;"><strong>Ships once</strong> Phase 2 data confirms the model holds.</p>
+        </div>
+      </div>
+      <p style="margin-top:32px; font-size:17px; color:var(--text-dim);"><strong style="color:var(--text);">Apr 30, 2026 milestone:</strong> Phase 1 QE launched with both expansion modes in a single cohort — validates the unified mechanic without fragmenting the signal.</p>
+    </div>
+  </section>
+
+  <!-- Slide 28 — Impact -->
+  <section class="slide top" data-notes="
+    <p><strong>The impact slide.</strong> Lead with the qualitative wins (launch unblocked, doc became canonical) before the quantitative ones. The QE is launched but full performance data is still in flight — frame honestly.</p>
+    <p><strong>Talk track:</strong> &quot;Both teams unblocked — PSE and PSF can now ship GA under the unified dropdown. The adoption model shifted from opt-in to opt-out, which changed the trajectory more than any UI improvement could. Two controls collapsed into one coherent dropdown. And the design doc became the single source of truth for six-plus teams across eng, PM, DS, and UXR — that's the kind of leverage I want to keep building.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">08 · Impact</div>
+      <h2>What shipped, and what's tracking.</h2>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px;">
+        <div class="stat-card" style="border-color:rgba(34,197,94,0.4);">
+          <div class="stat-label" style="color:var(--green);">Launch unblocked</div>
+          <div class="stat-num" style="color:var(--green); font-size:48px;">2 teams</div>
+          <p class="stat-desc">PSF + PSE can now ship GA under one unified dropdown — removing the bottleneck that kept both in beta for a year.</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Adoption model</div>
+          <div class="stat-num" style="font-size:32px;">Opt-in → opt-out</div>
+          <p class="stat-desc">Default-on with transparent controls replaces low-adoption opt-in — the single biggest lever in any AI product.</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Controls unified</div>
+          <div class="stat-num">2 → 1</div>
+          <p class="stat-desc">Binary checkbox + expansion toggle collapsed into one coherent dropdown that names what each option does.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:12px;">Early QE signal + sibling-product proof</div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+          <div class="stat-card" style="padding:18px 20px; border-color:rgba(59,130,246,0.3);">
+            <div class="stat-label" style="font-size:11px;">Default-mode uptake</div>
+            <div class="stat-num" style="font-size:32px;">~85%</div>
+            <p class="stat-desc" style="font-size:12px;">advertisers staying on the recommended option — the &ldquo;informed default&rdquo; hypothesis at work.</p>
+          </div>
+          <div class="stat-card" style="padding:18px 20px; border-color:rgba(59,130,246,0.3);">
+            <div class="stat-label" style="font-size:11px;">Opt-out rate</div>
+            <div class="stat-num" style="font-size:32px;">&lt;5%</div>
+            <p class="stat-desc" style="font-size:12px;">choosing strict containment — a healthy minority signal, not a trust failure.</p>
+          </div>
+          <div class="stat-card" style="padding:18px 20px; border-color:rgba(168,85,247,0.3);">
+            <div class="stat-label" style="color:var(--purple); font-size:11px;">XFN alignment artifact</div>
+            <div class="stat-num" style="color:var(--purple); font-size:32px;">6+ teams</div>
+            <p class="stat-desc" style="font-size:12px;">aligned on the canonical design doc — eng, PM, DS, UXR, content.</p>
+          </div>
+          <div class="stat-card" style="padding:18px 20px; border-color:rgba(34,197,94,0.4); background:var(--green-dim);">
+            <div class="stat-label" style="color:var(--green); font-size:11px;">Sibling product proof</div>
+            <div class="stat-num" style="color:var(--green); font-size:30px; letter-spacing:-1px;">$51M / 100%</div>
+            <p class="stat-desc" style="font-size:12px;"><strong style="color:var(--text);">PPO</strong> (same product family) — ARR running on the same liquidity stack with a 100% beta win rate.</p>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin-top:20px; font-size:13px; color:var(--text-dimmer); font-style:italic;">QE#3 launched Apr 30, 2026. Top-row · directional QE signal targets. PPO figures · measured, Track 1F sibling product on the same liquidity stack. Full unified-dropdown metrics confirmed at GA.</p>
+    </div>
+  </section>
+
+  <!-- Slide 29 — Liquidity reflection -->
+  <section class="slide top" data-notes="
+    <p><strong>Wrap the case.</strong> Three transferable lessons from the liquidity work.</p>
+    <p><strong>Don't read them.</strong> The slide stands on its own — a hiring panel can screenshot it as the answer to &ldquo;what did you learn?&rdquo; Talk to each briefly: choice architecture (defining), defaults (universal), the Shoe Retailer Test (memorable).</p>
+  ">
+    <div class="slide-inner" style="justify-content:center; max-width:1100px;">
+      <div class="eyebrow">Liquidity · Reflection</div>
+      <h2 style="margin-bottom:64px;">What this taught me about AI product design.</h2>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:48px;">
+        <div>
+          <div style="font-size:13px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:18px;">01</div>
+          <h4 style="font-size:24px; font-weight:600; line-height:1.25; margin-bottom:16px; letter-spacing:-0.3px;">Designing for AI is <span style="color:var(--accent);">choice architecture</span>.</h4>
+          <p style="font-size:15px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">Helping users choose between AI behaviors — not just turning AI on or off.</p>
+        </div>
+        <div>
+          <div style="font-size:13px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:18px;">02</div>
+          <h4 style="font-size:24px; font-weight:600; line-height:1.25; margin-bottom:16px; letter-spacing:-0.3px;">Defaults are the <span style="color:var(--accent);">most powerful lever</span>.</h4>
+          <p style="font-size:15px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">Opt-in to opt-out changed the trajectory more than any UI improvement could — but only when the default is transparent.</p>
+        </div>
+        <div>
+          <div style="font-size:13px; letter-spacing:1.8px; color:var(--accent); font-weight:700; margin-bottom:18px;">03</div>
+          <h4 style="font-size:24px; font-weight:600; line-height:1.25; margin-bottom:16px; letter-spacing:-0.3px;">Specificity is <span style="color:var(--accent);">clarity</span>.</h4>
+          <p style="font-size:15px; line-height:1.55; color:var(--text-dim); margin:0; max-width:none;">The Shoe Retailer Test communicated in 10 seconds what a three-page spec couldn't.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- CLOSE -->
+  <!-- ============================================== -->
+
+  <!-- Slide 30 — Through-line -->
+  <section class="slide big" data-notes="
+    <p><strong>Tie both cases together.</strong> This is the &quot;so what&quot; — what kind of designer am I, based on the work you just saw.</p>
+    <p><strong>Talk track:</strong> &quot;Both cases sit on the same edge — humans giving AI systems the right signal. PVE was about depth: redesigning one surface so the signal got crisp. Liquidity was about breadth: redesigning a product strategy so the signals stopped conflicting. They're two sides of the same craft.&quot;</p>
+    <p><strong>End on:</strong> The kind of design I want to keep doing.</p>
+  ">
+    <div class="slide-inner" style="justify-content:center; max-width:1100px;">
+      <div class="eyebrow">Through-line</div>
+      <h2 style="margin-bottom:48px;">Two cases. One craft.</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:36px; margin-bottom:48px;">
+        <div style="padding:24px 28px; border-left:3px solid var(--accent); background:var(--accent-dim); border-radius:0 8px 8px 0;">
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--accent); font-weight:700; margin-bottom:10px; text-transform:uppercase;">PVE</div>
+          <p style="font-size:22px; color:var(--text); line-height:1.35; margin:0; max-width:none; font-weight:500;">Depth — redesigning one surface so a <span style="color:var(--accent);">single signal got crisper</span>.</p>
+        </div>
+        <div style="padding:24px 28px; border-left:3px solid var(--purple); background:var(--purple-dim); border-radius:0 8px 8px 0;">
+          <div style="font-size:11px; letter-spacing:1.5px; color:var(--purple); font-weight:700; margin-bottom:10px; text-transform:uppercase;">Liquidity</div>
+          <p style="font-size:22px; color:var(--text); line-height:1.35; margin:0; max-width:none; font-weight:500;">Breadth — redesigning a product strategy so <span style="color:var(--purple);">multiple signals stopped conflicting</span>.</p>
+        </div>
+      </div>
+      <p style="font-size:24px; color:var(--text-dim); line-height:1.4; margin:0; max-width:900px; font-weight:400; text-align:center; margin-left:auto; margin-right:auto;">Both are about the same thing: <strong style="color:var(--text);">designing the seams where humans and AI systems learn from each other.</strong></p>
+    </div>
+  </section>
+
+  <!-- Slide 31 — Thank you -->
+  <section class="slide section-title" data-notes="
+    <p><strong>Land the close.</strong> Eye contact. Thank them. Open it up.</p>
+    <p><strong>Verbal:</strong> &quot;Thanks for the time. Happy to take questions, or go deeper on anything you saw.&quot;</p>
+  ">
+    <div class="slide-inner">
+      <div class="eyebrow">Thank you</div>
+      <h1>Questions?</h1>
+      <p class="lead" style="margin-top:24px;"><strong>Hub Uy</strong> · Product Designer</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- Chrome -->
+<div class="progress" id="progress" style="width: 4%;"></div>
+<div class="chrome">
+  <div class="counter"><span id="current">1</span> / <span id="total">31</span> · press <strong>?</strong> for help</div>
+</div>
+
+<div class="notes-panel" id="notesPanel">
+  <h5>Speaker Notes</h5>
+  <div class="note-content" id="noteContent"></div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-box">
+    <h3>Keyboard shortcuts</h3>
+    <dl>
+      <dt>→ / Space</dt><dd>Next slide</dd>
+      <dt>←</dt><dd>Previous slide</dd>
+      <dt>Home / End</dt><dd>Jump to start / end</dd>
+      <dt>F</dt><dd>Toggle fullscreen</dd>
+      <dt>N</dt><dd>Toggle speaker notes</dd>
+      <dt>P</dt><dd>Print / export PDF</dd>
+      <dt>?</dt><dd>Show this help</dd>
+      <dt>Esc</dt><dd>Close overlays</dd>
+    </dl>
+    <div class="dismiss-hint">Press <strong>?</strong> or <strong>Esc</strong> to close</div>
+  </div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  document.getElementById('total').textContent = total;
+
+  let current = 0;
+  let notesOpen = false;
+
+  function showSlide(i) {
+    current = Math.max(0, Math.min(total - 1, i));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+    document.getElementById('current').textContent = current + 1;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('noteContent').innerHTML = slides[current].dataset.notes || '<em>No notes for this slide.</em>';
+    // Update URL hash for direct linking
+    history.replaceState(null, '', '#' + (current + 1));
+  }
+
+  function next() { showSlide(current + 1); }
+  function prev() { showSlide(current - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    // Allow typing inside the iframe / inputs
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { showSlide(0); }
+    else if (e.key === 'End') { showSlide(total - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+    else if (e.key === 'n' || e.key === 'N') {
+      notesOpen = !notesOpen;
+      document.getElementById('notesPanel').classList.toggle('open', notesOpen);
+    }
+    else if (e.key === 'p' || e.key === 'P') {
+      // Show all slides before print
+      slides.forEach(s => s.classList.add('active'));
+      window.print();
+      setTimeout(() => showSlide(current), 100);
+    }
+    else if (e.key === '?' || e.key === '/') {
+      document.getElementById('helpOverlay').classList.toggle('open');
+    }
+    else if (e.key === 'Escape') {
+      document.getElementById('helpOverlay').classList.remove('open');
+      document.getElementById('notesPanel').classList.remove('open');
+      notesOpen = false;
+    }
+  });
+
+  // Click side of screen to nav (right half = next, left = prev), but don't hijack iframe clicks
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('iframe') || e.target.closest('.notes-panel') || e.target.closest('.help-overlay') || e.target.closest('video')) return;
+    const x = e.clientX;
+    const w = window.innerWidth;
+    if (x > w * 0.7) next();
+    else if (x < w * 0.3) prev();
+  });
+
+  // Init from URL hash
+  const initial = parseInt(location.hash.slice(1), 10);
+  if (!isNaN(initial) && initial >= 1 && initial <= total) showSlide(initial - 1);
+  else showSlide(0);
+</script>
+
+</body>
+</html>

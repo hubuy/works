@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PCA Liquidity — Unified Preferences (Interactive Prototype)</title>
+<style>
+  /* ===== Tokens (matched to Figma) ===== */
+  :root {
+    --app-bg: #f0f2f5;
+    --card-inactive: #ffffff;
+    --card-active: #ffffff;
+    --skeleton: #e4e6eb;
+    --skeleton-dim: #ebedf0;
+    --text-primary: #1c1e21;
+    --text-secondary: #65676b;
+    --text-muted: #8a8d91;
+    --text-inverse-muted: #8a8d91;
+    --primary: #1877f2;
+    --primary-hover: #166fe0;
+    --primary-bg: #e7f3ff;
+    --border: #dadde1;
+    --border-strong: #ccd0d5;
+    --green: #00a400;
+    --green-active: #45bd62;
+    --recommend-bg: #1c2e54;
+    --recommend-text: #ffffff;
+    --warning-border: #00a4a6;
+    --warning-bg: #f0fafa;
+    --info-border: #1877f2;
+    --info-bg: #f0f6ff;
+    --shadow-card: 0 1px 3px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+    --shadow-pop: 0 8px 24px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08);
+    --radius: 8px;
+    --radius-sm: 6px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: #f0f2f5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ===== Prototype chrome ===== */
+  .proto-chrome {
+    background: linear-gradient(135deg, #1c1e21 0%, #2c2d34 100%);
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    border-bottom: 1px solid #000;
+  }
+  .proto-chrome .badge {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+  .proto-chrome .title { font-weight: 600; }
+  .proto-chrome .meta { color: rgba(255,255,255,.6); }
+  .proto-chrome .spacer { flex: 1; }
+  .proto-chrome button {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.2);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .proto-chrome button:hover { background: rgba(255,255,255,.16); }
+
+  /* ===== Ads Manager shell ===== */
+  .am-shell {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    height: calc(100vh - 78px);
+    min-height: 720px;
+    background: var(--app-bg);
+  }
+  .am-railnav {
+    background: #fff;
+    border-right: 1px solid var(--border);
+  }
+  .am-main {
+    display: grid;
+    grid-template-rows: 78px 1fr 60px;
+    overflow: hidden;
+  }
+
+  /* ===== Top bar ===== */
+  .am-topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 20px;
+    grid-template-areas: "crumbs tabs actions";
+  }
+  .am-topbar .crumbs {
+    grid-area: crumbs;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--text-secondary);
+  }
+  .am-topbar .crumbs .nav-btn {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-primary);
+    cursor: pointer;
+    background: #fff;
+  }
+  .am-topbar .crumbs .nav-btn svg { width: 16px; height: 16px; }
+  .am-topbar .crumbs .crumb {
+    padding: 6px 8px; border-radius: 4px; display: inline-flex; gap: 6px; align-items: center;
+  }
+  .am-topbar .crumbs .crumb.current {
+    background: var(--primary-bg); color: var(--primary); font-weight: 600;
+  }
+  .am-topbar .crumbs .sep { color: var(--text-muted); }
+  .am-topbar .tabs {
+    grid-area: tabs;
+    display: flex; gap: 4px; align-self: end; padding-bottom: 0;
+  }
+  .am-topbar .tab {
+    padding: 8px 14px;
+    border-radius: 6px 6px 0 0;
+    font-size: 13px; color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .am-topbar .tab.active {
+    background: var(--primary-bg);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .am-topbar .actions {
+    grid-area: actions;
+    justify-self: end;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px;
+  }
+  .am-topbar .status-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green-active);
+    display: inline-block; margin-right: 6px;
+  }
+  .am-topbar .toggle {
+    width: 38px; height: 22px; border-radius: 11px; background: var(--primary);
+    position: relative; cursor: pointer;
+  }
+  .am-topbar .toggle::after {
+    content: ""; position: absolute; top: 2px; right: 2px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  }
+  .am-topbar .icon-btn {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-primary); background: #fff;
+  }
+
+  /* ===== Body grid ===== */
+  .am-body {
+    display: grid;
+    grid-template-columns: minmax(560px, 1fr) 360px;
+    gap: 20px;
+    padding: 20px 24px;
+    overflow-y: auto;
+    background: var(--app-bg);
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--card-inactive);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-card);
+  }
+  .card .card-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+  .card .check {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--green); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .card .skeleton {
+    height: 8px; border-radius: 4px; background: var(--skeleton);
+    margin: 8px 0;
+  }
+  .card .skeleton.short { width: 30%; }
+
+  .card.active {
+    background: var(--card-active);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--primary), 0 1px 3px rgba(0,0,0,.08);
+  }
+  .card.active .card-title { color: var(--text-primary); }
+
+  /* ===== Promoted products (active) ===== */
+  .pp-row { margin-top: 16px; }
+  .pp-row:first-child { margin-top: 4px; }
+  .pp-label {
+    font-size: 14px; font-weight: 600; color: var(--text-primary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pp-label .info-i {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text-primary); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; cursor: pointer;
+    font-style: normal; font-family: serif;
+  }
+  .pp-help {
+    font-size: 12px; color: var(--text-secondary); margin: 4px 0 8px;
+  }
+  .pp-help a { color: var(--primary); text-decoration: none; }
+
+  .pp-select-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .pp-select { position: relative; }
+  .pp-select .pp-trigger {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 9px 36px 9px 12px;
+    text-align: left;
+    font-size: 14px; color: var(--text-primary);
+    cursor: pointer;
+    position: relative;
+    font-family: var(--font);
+    display: flex; align-items: center;
+  }
+  .pp-select .pp-trigger:hover { background: #fafbfc; }
+  .pp-select.open .pp-trigger {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(24,119,242,.2);
+  }
+  .pp-select .pp-trigger::after {
+    content: "";
+    position: absolute; right: 12px; top: 50%;
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--text-primary);
+    transform: translateY(-50%);
+  }
+
+  .pp-create-btn {
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: var(--font);
+  }
+  .pp-create-btn:hover { background: #f5f6f7; }
+
+  /* ===== Dropdown menus ===== */
+  .pp-menu {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: #fff;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-pop);
+    z-index: 30;
+    overflow: hidden;
+    animation: dropIn .14s ease-out;
+  }
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .pp-menu .pp-search {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pp-menu .pp-search input {
+    flex: 1;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 13px;
+    outline: none;
+    font-family: var(--font);
+  }
+  .pp-menu .pp-search svg { color: var(--text-muted); }
+  .pp-option {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    border-top: 1px solid transparent;
+  }
+  .pp-option:hover { background: #f5f6f7; }
+  .pp-option.selected { background: var(--primary-bg); }
+  .pp-option .radio {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    flex-shrink: 0; margin-top: 1px;
+    position: relative; background: #fff;
+  }
+  .pp-option.selected .radio { border-color: var(--primary); }
+  .pp-option.selected .radio::after {
+    content: ""; position: absolute; top: 50%; left: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--primary);
+    transform: translate(-50%,-50%);
+  }
+  .pp-option .opt-body { flex: 1; min-width: 0; }
+  .pp-option .opt-title {
+    font-weight: 500; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pp-option .opt-sub {
+    font-size: 12px; color: var(--text-secondary); margin-top: 2px;
+  }
+  .recommended-tag {
+    background: var(--recommend-bg);
+    color: var(--recommend-text);
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+    margin-left: auto;
+  }
+
+  /* ===== Outcome cards ===== */
+  .outcome {
+    margin-top: 14px;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px 14px 18px;
+    border-left: 3px solid;
+    background: #fff;
+    animation: slideDown .2s ease-out;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .outcome.info {
+    background: var(--info-bg);
+    border-left-color: var(--info-border);
+  }
+  .outcome.warning {
+    background: var(--warning-bg);
+    border-left-color: var(--warning-border);
+  }
+  .outcome .outcome-head {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-weight: 600; color: var(--text-primary);
+    font-size: 14px;
+  }
+  .outcome .outcome-head svg { flex-shrink: 0; margin-top: 1px; }
+  .outcome .outcome-body {
+    font-size: 13px; color: var(--text-secondary);
+    margin-top: 6px; padding-left: 26px; line-height: 1.45;
+  }
+  .outcome .outcome-body a { color: var(--primary); text-decoration: none; }
+  .outcome .outcome-body .apply-btn {
+    margin-top: 10px;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 6px 14px;
+    font-size: 13px; cursor: pointer;
+    color: var(--text-primary);
+    font-family: var(--font);
+  }
+  .outcome .outcome-body .apply-btn:hover { background: #f5f6f7; }
+
+  /* ===== Right panel ===== */
+  .right-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .right-card h3 {
+    margin: 0 0 6px;
+    font-size: 16px; color: var(--text-primary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .right-card .info-i {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text-primary); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700;
+    font-style: normal; font-family: serif;
+  }
+  .right-card .summary {
+    color: var(--text-primary); font-size: 13px; margin-bottom: 12px;
+  }
+  .gauge {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .gauge .seg-1 { background: #f9d6d2; transition: width .3s ease; }
+  .gauge .seg-2 { background: #5cc26b; transition: width .3s ease; }
+  .gauge .seg-3 { background: #f5e9a3; transition: width .3s ease; }
+  .gauge-labels {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+  .est-line {
+    font-size: 13px; color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .est-disclaimer {
+    background: #f0f2f5;
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    line-height: 1.4;
+    display: flex; gap: 8px;
+  }
+  .reach-label { font-size: 13px; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .reach-value { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+  .reach-bar {
+    height: 6px; border-radius: 3px;
+    background: var(--border);
+    position: relative; margin-bottom: 14px; overflow: hidden;
+  }
+  .reach-bar::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--reach-w, 12%);
+    background: var(--primary);
+    border-radius: 3px;
+    transition: width .35s ease;
+  }
+  .reach-disclaimer {
+    font-size: 12px; color: var(--text-secondary); line-height: 1.45;
+  }
+
+  /* ===== Footer ===== */
+  .am-footer {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+  }
+  .btn {
+    border-radius: var(--radius-sm);
+    padding: 8px 18px;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    background: #fff;
+    color: var(--text-primary);
+    font-family: var(--font);
+  }
+  .btn:hover { background: #f5f6f7; }
+  .btn.primary {
+    background: var(--primary); color: #fff; border-color: var(--primary);
+  }
+  .btn.primary:hover { background: var(--primary-hover); }
+  .btn-row { display: flex; gap: 10px; }
+
+  /* ===== Caption ===== */
+  .caption-strip {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    padding: 14px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .caption-strip strong { color: var(--text-primary); }
+
+  /* Tooltip popover */
+  .tooltip-pop {
+    position: absolute;
+    background: #fff;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-pop);
+    padding: 14px 16px;
+    z-index: 40;
+    width: 280px;
+    font-size: 13px;
+    color: var(--text-primary);
+    transform: translate(-50%, -100%);
+    margin-top: -8px;
+    animation: dropIn .14s ease-out;
+  }
+  .tooltip-pop .tip-head {
+    font-weight: 600; margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .tooltip-pop .tip-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-secondary); font-size: 16px; padding: 0;
+  }
+  .tooltip-pop .tip-body { color: var(--text-secondary); line-height: 1.45; }
+</style>
+</head>
+<body>
+
+<div class="proto-chrome">
+  <span class="badge">Prototype</span>
+  <span class="title">PCA Liquidity — Unified Preferences</span>
+  <span class="meta">Q2 2026 · Apr 30 QE Launch · Pixel-matched to Figma 2988:1552187</span>
+  <span class="spacer"></span>
+  <button onclick="resetProto()">↻ Reset</button>
+</div>
+
+<div class="am-shell">
+  <div class="am-railnav"></div>
+  <div class="am-main">
+
+    <div class="am-topbar">
+      <div class="crumbs">
+        <span class="nav-btn" title="Sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        </span>
+        <span class="crumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> New Sales Ad Campaign</span>
+        <span class="sep">›</span>
+        <span class="crumb current"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg> New Sales Ad ad Set</span>
+        <span class="sep">›</span>
+        <span class="crumb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg> 1 Ad</span>
+      </div>
+      <div class="tabs">
+        <span class="tab active">✏️ Edit</span>
+        <span class="tab">👁 Review</span>
+      </div>
+      <div class="actions">
+        <span><span class="status-dot"></span>Active</span>
+        <span class="toggle"></span>
+        <span class="icon-btn">⋯</span>
+      </div>
+    </div>
+
+    <div class="am-body">
+      <div class="form-col">
+        <div class="card">
+          <div class="card-title"><span class="check">✓</span> Ad Set name</div>
+          <div class="skeleton"></div>
+          <div class="skeleton short"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="check">✓</span> Catalog sales</div>
+          <div class="skeleton"></div>
+          <div class="skeleton short"></div>
+        </div>
+
+        <div class="card active">
+          <div class="card-title"><span class="check">✓</span> Promoted products</div>
+
+          <div class="pp-row">
+            <div class="pp-label">Product set <span class="info-i">i</span></div>
+            <div class="pp-help" id="pp-set-help">Choose which products to use in your ads. Manage your <a href="#">Product catalog</a>.</div>
+            <div class="pp-select-row">
+              <div class="pp-select" id="set-select">
+                <button class="pp-trigger" id="set-trigger" onclick="toggleSetMenu()">
+                  <span id="set-trigger-label">All products</span>
+                </button>
+                <div class="pp-menu" id="set-menu" style="display:none">
+                  <div class="pp-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="Search term" />
+                  </div>
+                  <div class="pp-option" data-set="all" onclick="pickSet('all', 'All products')">
+                    <span class="radio"></span>
+                    <div class="opt-body">
+                      <div class="opt-title">All products</div>
+                      <div class="opt-sub">48k products • Created for you</div>
+                    </div>
+                  </div>
+                  <div class="pp-option" data-set="knitwear" onclick="pickSet('knitwear', 'Knitwear')">
+                    <span class="radio"></span>
+                    <div class="opt-body">
+                      <div class="opt-title">Knitwear</div>
+                      <div class="opt-sub">4.16k items</div>
+                    </div>
+                  </div>
+                  <div class="pp-option" data-set="fishing" onclick="pickSet('fishing', 'Fishing')">
+                    <span class="radio"></span>
+                    <div class="opt-body">
+                      <div class="opt-title">Fishing</div>
+                      <div class="opt-sub">10.2k items</div>
+                    </div>
+                  </div>
+                  <div class="pp-option" data-set="fathers" onclick="pickSet('fathers', 'Fathers Day 2026')">
+                    <span class="radio"></span>
+                    <div class="opt-body">
+                      <div class="opt-title">Fathers Day 2026</div>
+                      <div class="opt-sub">1520 items</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="pp-create-btn">Create set</button>
+            </div>
+          </div>
+
+          <div class="pp-row" id="opts-row" style="display:none">
+            <div class="pp-label">
+              Product set options
+              <span class="info-i" id="opts-info-trigger" onclick="toggleTooltip(event)">i</span>
+            </div>
+            <div class="pp-help">Choose whether products from outside of this product set should appear in your ad.</div>
+
+            <div class="pp-select" id="opts-select">
+              <button class="pp-trigger" id="opts-trigger" onclick="toggleOptsMenu()">
+                <span id="opts-trigger-label">Include products outside this set to maximize outcomes</span>
+              </button>
+              <div class="pp-menu" id="opts-menu" style="display:none">
+                <div class="pp-option selected" data-opt="maximize" onclick="pickOpt('maximize')">
+                  <span class="radio"></span>
+                  <div class="opt-body">
+                    <div class="opt-title">
+                      Include products outside of this set to maximize outcomes
+                      <span class="recommended-tag">Recommended</span>
+                    </div>
+                    <div class="opt-sub">High-performing products from your catalog may be added to your ads to maximize outcomes.</div>
+                  </div>
+                </div>
+                <div class="pp-option" data-opt="relevant" onclick="pickOpt('relevant')">
+                  <span class="radio"></span>
+                  <div class="opt-body">
+                    <div class="opt-title">Include relevant products outside of this set</div>
+                    <div class="opt-sub">Relevant products from your catalog may be added to your ads to improve outcomes.</div>
+                  </div>
+                </div>
+                <div class="pp-option" data-opt="only" onclick="pickOpt('only')">
+                  <span class="radio"></span>
+                  <div class="opt-body">
+                    <div class="opt-title">Only include products from this set</div>
+                    <div class="opt-sub">No other products will appear in your ads.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="outcome-mount"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="check">✓</span> Budget &amp; schedule</div>
+          <div class="skeleton"></div>
+          <div class="skeleton short"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="check">✓</span> Audience</div>
+          <div class="skeleton"></div>
+          <div class="skeleton short"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="check">✓</span> Placements</div>
+          <div class="skeleton"></div>
+          <div class="skeleton short"></div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="right-card">
+          <h3>Audience Definition <span class="info-i">i</span></h3>
+          <div class="summary" id="aud-summary">Your audience selection is fairly broad.</div>
+          <div class="gauge"><div class="seg-1"></div><div class="seg-2"></div><div class="seg-3"></div></div>
+          <div class="gauge-labels"><span>Specific</span><span>Broad</span></div>
+          <div class="est-line">Estimated audience size: <strong id="aud-size" style="margin-left:4px">232,700 - 273,700</strong> <span class="info-i">i</span></div>
+          <div class="est-disclaimer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--text-secondary)"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+            <span>Estimates may vary significantly over time based on your targeting selections and available data.</span>
+          </div>
+        </div>
+
+        <div class="right-card">
+          <h3>Estimated Daily Results</h3>
+          <div class="reach-label">Reach <span class="info-i">i</span></div>
+          <div class="reach-value" id="reach-value">5.3K - 15K</div>
+          <div class="reach-bar" id="reach-bar" style="--reach-w: 14%"></div>
+          <div class="reach-disclaimer">
+            The accuracy of estimates is based on factors such as past campaign data, the budget you entered, market data, targeting criteria and ad placements. Numbers are provided to give you an idea of performance for your budget, but are only estimates and don't guarantee results.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="am-footer">
+      <button class="btn">Close</button>
+      <div class="btn-row">
+        <button class="btn">Back</button>
+        <button class="btn primary">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="caption-strip">
+  <div><strong>Try it →</strong> Open the <em>Product set</em> dropdown, pick "Knitwear" (or any non-default set). The unified <em>Product set options</em> section appears with three radio choices. Each surfaces a different outcome card.</div>
+  <div><strong>What's shipping →</strong> Apr 30 QE Launch. One unified Preferences control replaces the legacy PSE checkbox + PSF dropdown. Default keeps full liquidity; "Only include" surfaces an explicit cost-per-result trade-off.</div>
+</div>
+
+<script>
+  const STATES = {
+    set: 'all',
+    opt: 'maximize',
+    setMenuOpen: false,
+    optsMenuOpen: false,
+    tooltipOpen: false,
+  };
+
+  const REACH = {
+    maximize: { value: '5.3K - 15K', width: '14%', size: '232,700 - 273,700', summary: 'Your audience selection is fairly broad.' },
+    relevant: { value: '4.6K - 13K', width: '11%', size: '210,400 - 248,900', summary: 'Your audience selection is fairly broad.' },
+    only:     { value: '3.1K - 9.2K', width: '7%',  size: '162,800 - 198,500', summary: 'Your audience selection is leaning specific.' },
+  };
+
+  function el(id) { return document.getElementById(id); }
+
+  function toggleSetMenu() {
+    STATES.setMenuOpen = !STATES.setMenuOpen;
+    closeOptsMenu();
+    closeTooltip();
+    el('set-menu').style.display = STATES.setMenuOpen ? 'block' : 'none';
+    el('set-select').classList.toggle('open', STATES.setMenuOpen);
+  }
+  function closeSetMenu() {
+    if (!STATES.setMenuOpen) return;
+    STATES.setMenuOpen = false;
+    el('set-menu').style.display = 'none';
+    el('set-select').classList.remove('open');
+  }
+  function pickSet(key, label) {
+    STATES.set = key;
+    el('set-trigger-label').textContent = label;
+    document.querySelectorAll('#set-menu .pp-option').forEach(o => {
+      o.classList.toggle('selected', o.dataset.set === key);
+    });
+    el('pp-set-help').innerHTML = key === 'all'
+      ? 'Choose which products to use in your ads. Manage your <a href="#">Product catalog</a>.'
+      : 'Choose which products to prioritize in your ads. Manage your <a href="#">Product catalog</a>.';
+    closeSetMenu();
+    refreshOptsVisibility();
+  }
+
+  function toggleOptsMenu() {
+    STATES.optsMenuOpen = !STATES.optsMenuOpen;
+    closeSetMenu();
+    closeTooltip();
+    el('opts-menu').style.display = STATES.optsMenuOpen ? 'block' : 'none';
+    el('opts-select').classList.toggle('open', STATES.optsMenuOpen);
+  }
+  function closeOptsMenu() {
+    if (!STATES.optsMenuOpen) return;
+    STATES.optsMenuOpen = false;
+    el('opts-menu').style.display = 'none';
+    el('opts-select').classList.remove('open');
+  }
+  function pickOpt(key) {
+    STATES.opt = key;
+    document.querySelectorAll('#opts-menu .pp-option').forEach(o => {
+      o.classList.toggle('selected', o.dataset.opt === key);
+    });
+    const labels = {
+      maximize: 'Include products outside this set to maximize outcomes',
+      relevant: 'Include relevant products outside of this set',
+      only:     'Only include products from this set',
+    };
+    el('opts-trigger-label').textContent = labels[key];
+    closeOptsMenu();
+    renderOutcome();
+    updateEstimates();
+  }
+
+  function refreshOptsVisibility() {
+    const showOpts = STATES.set !== 'all';
+    el('opts-row').style.display = showOpts ? 'block' : 'none';
+    if (!showOpts) {
+      el('outcome-mount').innerHTML = '';
+      STATES.opt = 'maximize';
+      pickOpt('maximize');
+    } else {
+      renderOutcome();
+    }
+    updateEstimates();
+  }
+
+  function renderOutcome() {
+    const mount = el('outcome-mount');
+    if (STATES.opt === 'maximize') { mount.innerHTML = ''; return; }
+    if (STATES.opt === 'relevant') {
+      mount.innerHTML = `
+        <div class="outcome info">
+          <div class="outcome-head">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12" y2="16.01"/></svg>
+            Relevant products will be included in your ads
+          </div>
+          <div class="outcome-body">The system will analyze your ads to find relevant products across your catalog that may improve outcomes.</div>
+        </div>`;
+      return;
+    }
+    if (STATES.opt === 'only') {
+      mount.innerHTML = `
+        <div class="outcome warning">
+          <div class="outcome-head">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+            You could get 11% lower cost per result by including other products
+          </div>
+          <div class="outcome-body">
+            If your ad may benefit from including additional products from your catalog, they may be added when it's likely to improve outcomes. Products from your selected set will be prioritized. <a href="#">About including other products when promoting a set</a>
+            <div><button class="apply-btn" onclick="event.stopPropagation(); pickOpt('maximize')">Apply now</button></div>
+          </div>
+        </div>`;
+      return;
+    }
+  }
+
+  function updateEstimates() {
+    const r = REACH[STATES.opt] || REACH.maximize;
+    el('reach-value').textContent = r.value;
+    el('reach-bar').style.setProperty('--reach-w', r.width);
+    el('aud-size').textContent = r.size;
+    el('aud-summary').textContent = r.summary;
+  }
+
+  function toggleTooltip(e) {
+    e.stopPropagation();
+    closeTooltip();
+    if (STATES.tooltipOpen) return;
+    STATES.tooltipOpen = true;
+    const trigger = el('opts-info-trigger');
+    const rect = trigger.getBoundingClientRect();
+    const pop = document.createElement('div');
+    pop.className = 'tooltip-pop';
+    pop.id = 'tooltip-pop';
+    pop.style.left = (rect.left + rect.width/2) + 'px';
+    pop.style.top = rect.top + window.scrollY + 'px';
+    pop.innerHTML = `
+      <div class="tip-head">Product set options <button class="tip-close" onclick="closeTooltip()">×</button></div>
+      <div class="tip-body"><strong>How it works</strong><br/>Choose how this set should be used in ads. You can either include or exclude high-performing or relevant products from outside this set.</div>`;
+    document.body.appendChild(pop);
+  }
+  function closeTooltip() {
+    const pop = el('tooltip-pop');
+    if (pop) pop.remove();
+    STATES.tooltipOpen = false;
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#set-select')) closeSetMenu();
+    if (!e.target.closest('#opts-select')) closeOptsMenu();
+    if (!e.target.closest('#tooltip-pop') && !e.target.closest('#opts-info-trigger')) closeTooltip();
+  });
+
+  function resetProto() {
+    STATES.set = 'all'; STATES.opt = 'maximize';
+    el('set-trigger-label').textContent = 'All products';
+    el('opts-trigger-label').textContent = 'Include products outside this set to maximize outcomes';
+    document.querySelectorAll('#set-menu .pp-option').forEach(o => o.classList.toggle('selected', o.dataset.set === 'all'));
+    document.querySelectorAll('#opts-menu .pp-option').forEach(o => o.classList.toggle('selected', o.dataset.opt === 'maximize'));
+    el('pp-set-help').innerHTML = 'Choose which products to use in your ads. Manage your <a href="#">Product catalog</a>.';
+    closeSetMenu(); closeOptsMenu(); closeTooltip();
+    el('opts-row').style.display = 'none';
+    el('outcome-mount').innerHTML = '';
+    updateEstimates();
+  }
+
+  document.querySelectorAll('#set-menu .pp-option').forEach(o => {
+    o.classList.toggle('selected', o.dataset.set === 'all');
+  });
+  updateEstimates();
+</script>
+</body>
+</html>
